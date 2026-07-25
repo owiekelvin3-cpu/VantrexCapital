@@ -1326,7 +1326,6 @@
     "earningsSoFar": "Result so far",
     "adminManagedHint": "Live P/L is updated by the trading desk during your run.",
     "marketLinkedHint": "Result moves with the coin price from your entry. Green when the coin rises, red when it falls.",
-    "recentTradesDesc": "Profit and loss entries applied to this run.",
     "liveDeskSubtitle": "Live market execution feed",
     "liveTape": "Order tape",
     "liveTapeWaiting": "Waiting for market ticks…",
