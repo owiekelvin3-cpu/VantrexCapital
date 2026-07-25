@@ -1407,7 +1407,6 @@
     "tradeSuccess": "Order filled. +{{profit}} added to session P&L.",
     "invalidTradeAmount": "Enter a valid order size.",
     "tradeExceedsPower": "Order size exceeds your session allocation.",
-    "recentTrades": "Execution log",
     "historyTitle": "Past bots",
     "noHistory": "Nothing here yet — finished bots will show up here.",
     "completed": "Completed",
