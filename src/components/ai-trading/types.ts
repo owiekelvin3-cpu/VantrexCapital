@@ -7,6 +7,9 @@ export interface AISubscription {
   expires_at: string | null;
   crypto_asset: string;
   profit_earned: number;
+  entry_price?: number | null;
+  last_mark_price?: number | null;
+  admin_pnl?: number | null;
   last_sync_at: string | null;
   status: string;
   created_at: string;

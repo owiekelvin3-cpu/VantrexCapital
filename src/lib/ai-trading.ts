@@ -38,6 +38,9 @@ export interface LiveProfitInput {
   bot_name?: string;
   allocation: number;
   profit_earned: number;
+  entry_price?: number | null;
+  last_mark_price?: number | null;
+  admin_pnl?: number | null;
   last_sync_at?: string | null;
   created_at: string;
   status: string;
@@ -45,20 +48,30 @@ export interface LiveProfitInput {
   duration_hours?: number;
 }
 
-/** Profit including passive accrual since last server sync (updates every second in UI). */
-export function computeLiveProfit(sub: LiveProfitInput, at = Date.now()): number {
-  const earned = Number(sub.profit_earned ?? 0);
-  if (sub.status !== "active") return earned;
+/** Mark-to-market P/L from entry → current coin price. */
+export function computeMarketPnL(allocation: number, entryPrice: number, markPrice: number): number {
+  if (!Number.isFinite(allocation) || !Number.isFinite(entryPrice) || !Number.isFinite(markPrice)) return 0;
+  if (allocation <= 0 || entryPrice <= 0 || markPrice <= 0) return 0;
+  return Math.round(allocation * ((markPrice - entryPrice) / entryPrice) * 100) / 100;
+}
 
-  const syncFrom = new Date(sub.last_sync_at ?? sub.created_at).getTime();
-  const expiresAt = sub.expires_at ? new Date(sub.expires_at).getTime() : at;
-  const syncTo = Math.min(at, expiresAt);
-  const hoursElapsed = Math.max((syncTo - syncFrom) / 3_600_000, 0);
-  if (hoursElapsed <= 0) return earned;
+/** Live result = coin move since entry + any admin adjustment. */
+export function computeLiveProfit(sub: LiveProfitInput, markPrice?: number | null): number {
+  const admin = Number(sub.admin_pnl ?? 0);
+  const entry = Number(sub.entry_price ?? 0);
+  const mark = Number(
+    markPrice && markPrice > 0
+      ? markPrice
+      : sub.last_mark_price && Number(sub.last_mark_price) > 0
+        ? sub.last_mark_price
+        : 0
+  );
 
-  const hourlyRate = getHourlyRate(sub.bot_id ?? "nexus");
-  const accruing = sub.allocation * (hourlyRate / 100) * hoursElapsed;
-  return Math.round((earned + accruing) * 100) / 100;
+  if (entry > 0 && mark > 0) {
+    return Math.round((computeMarketPnL(sub.allocation, entry, mark) + admin) * 100) / 100;
+  }
+
+  return Math.round(Number(sub.profit_earned ?? 0) * 100) / 100;
 }
 
 export function getProfitPerSecond(allocation: number, botId: string): number {
@@ -79,15 +92,7 @@ export function getRunProgress(sub: LiveProfitInput, at = Date.now()): number {
 }
 
 export function getProjectedProfitAtExpiry(sub: LiveProfitInput): number {
-  if (!sub.expires_at || sub.status !== "active") {
-    return Number(sub.profit_earned ?? 0);
-  }
-  const remainingMs = new Date(sub.expires_at).getTime() - Date.now();
-  if (remainingMs <= 0) return computeLiveProfit(sub);
-  const remainingHours = remainingMs / 3_600_000;
-  const live = computeLiveProfit(sub);
-  const futurePassive = sub.allocation * (getHourlyRate(sub.bot_id ?? "nexus") / 100) * remainingHours;
-  return Math.round((live + futurePassive) * 100) / 100;
+  return Number(sub.profit_earned ?? 0);
 }
 
 export function getProjectedPayout(sub: LiveProfitInput): number {

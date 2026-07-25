@@ -1,18 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Bot, Clock, Sparkles } from "@/lib/icons";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { AiBotTradingAnimation } from "./AiBotTradingAnimation";
 import { FadeIn } from "@/components/motion/Motion";
 import {
   computeLiveProfit,
-  estimateTradeProfit,
+  computeMarketPnL,
   formatCountdown,
   getRunProgress,
-  getTradeRate,
 } from "@/lib/ai-trading";
+import { supabase } from "@/lib/supabase";
 import { formatCurrency, cn } from "@/lib/utils";
 import type { AIBotTrade, AISubscription } from "./types";
 
@@ -22,10 +21,7 @@ interface RunningBotViewProps {
   onSelectSub: (id: string) => void;
   trades: AIBotTrade[];
   tick: number;
-  loading: boolean;
   onStartAnother: () => void;
-  onQuickTrade: (pct: number) => void;
-  onManualTrade: (amount: number) => void;
 }
 
 export function RunningBotView({
@@ -34,13 +30,29 @@ export function RunningBotView({
   onSelectSub,
   trades,
   tick,
-  loading,
   onStartAnother,
-  onQuickTrade,
-  onManualTrade,
 }: RunningBotViewProps) {
   const { t } = useTranslation();
-  const [tradeAmount, setTradeAmount] = useState("");
+  const [markPrice, setMarkPrice] = useState<number | null>(null);
+
+  useEffect(() => {
+    setMarkPrice(selectedSub?.last_mark_price ? Number(selectedSub.last_mark_price) : null);
+  }, [selectedSub?.id, selectedSub?.last_mark_price]);
+
+  useEffect(() => {
+    if (!selectedSub?.id || !markPrice || markPrice <= 0) return;
+
+    const pushMark = () => {
+      void supabase.rpc("mark_ai_bot_market_pnl", {
+        p_subscription_id: selectedSub.id,
+        p_mark_price: markPrice,
+      });
+    };
+
+    pushMark();
+    const id = window.setInterval(pushMark, 8000);
+    return () => window.clearInterval(id);
+  }, [selectedSub?.id, markPrice]);
 
   if (activeSubs.length === 0 || !selectedSub) {
     return (
@@ -56,11 +68,17 @@ export function RunningBotView({
     );
   }
 
-  const earnings = computeLiveProfit(selectedSub);
+  const earnings = computeLiveProfit(selectedSub, markPrice);
+  const entry = Number(selectedSub.entry_price ?? 0);
+  const marketMove =
+    entry > 0 && markPrice && markPrice > 0
+      ? computeMarketPnL(selectedSub.allocation, entry, markPrice)
+      : null;
   const progress = getRunProgress(selectedSub);
   const subTrades = trades.filter((tr) => tr.subscription_id === selectedSub.id);
-  const tradeNum = parseFloat(tradeAmount) || 0;
-  const botId = selectedSub.bot_id ?? "nexus";
+  const earningsPositive = earnings >= 0;
+  const movePct =
+    entry > 0 && markPrice && markPrice > 0 ? ((markPrice - entry) / entry) * 100 : null;
 
   return (
     <FadeIn className="space-y-4">
@@ -97,16 +115,54 @@ export function RunningBotView({
               {selectedSub.crypto_asset} · {formatCurrency(selectedSub.allocation)}
             </p>
           </div>
-          <Badge variant="success">{t("aiTrading.running")}</Badge>
+          <Badge variant="success" className="gap-1.5">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald opacity-70" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald" />
+            </span>
+            {t("aiTrading.running")}
+          </Badge>
         </div>
 
-        <div className="mt-6 text-center">
+        <AiBotTradingAnimation
+          key={selectedSub.id}
+          cryptoAsset={selectedSub.crypto_asset || "BTC"}
+          botName={selectedSub.bot_name}
+          onMarkPrice={setMarkPrice}
+        />
+
+        <div className="mt-5 text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">
             {t("aiTrading.earningsSoFar")}
           </p>
-          <p className="mt-2 font-display text-4xl font-bold text-emerald sm:text-5xl" key={tick}>
-            +{formatCurrency(earnings)}
+          <p
+            className={cn(
+              "mt-2 font-display text-4xl font-bold sm:text-5xl transition-colors duration-300",
+              earningsPositive ? "text-emerald" : "text-red-500"
+            )}
+            key={`${tick}-${earnings}`}
+          >
+            {earningsPositive ? "+" : ""}
+            {formatCurrency(earnings)}
           </p>
+          {movePct != null && (
+            <p
+              className={cn(
+                "mt-1 text-sm font-semibold tabular-nums",
+                movePct >= 0 ? "text-emerald" : "text-red-500"
+              )}
+            >
+              {selectedSub.crypto_asset} {movePct >= 0 ? "+" : ""}
+              {movePct.toFixed(2)}%
+              {marketMove != null && (
+                <span className="ml-2 font-normal text-muted">
+                  ({marketMove >= 0 ? "+" : ""}
+                  {formatCurrency(marketMove)})
+                </span>
+              )}
+            </p>
+          )}
+          <p className="mt-2 text-xs text-muted">{t("aiTrading.marketLinkedHint")}</p>
         </div>
 
         <div className="mt-6">
@@ -130,102 +186,39 @@ export function RunningBotView({
         <p className="mt-4 text-center text-sm text-muted">{t("aiTrading.moneyBackNote")}</p>
       </div>
 
-      <section className="overflow-hidden rounded-2xl border border-border bg-card">
-        <div className="border-b border-border/70 px-5 py-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald">
-            {t("aiTrading.manualExecutionEyebrow")}
-          </p>
-          <h3 className="mt-1 font-display text-base font-semibold text-foreground">
-            {t("aiTrading.earnMore")}
-          </h3>
-          <p className="mt-1 text-sm leading-relaxed text-muted">{t("aiTrading.earnMoreDesc")}</p>
-        </div>
-
-        <div className="space-y-5 px-5 py-5">
-          <div>
-            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-              {t("aiTrading.quickExecution")}
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              {[
-                { label: t("aiTrading.tradeSmall"), pct: 0.25 },
-                { label: t("aiTrading.tradeMedium"), pct: 0.5 },
-                { label: t("aiTrading.tradeLarge"), pct: 1 },
-              ].map(({ label, pct }) => {
-                const amt = Math.floor(selectedSub.allocation * pct);
-                const profit = estimateTradeProfit(amt, botId);
-                return (
-                  <button
-                    key={pct}
-                    type="button"
-                    disabled={loading || amt <= 0}
-                    onClick={() => onQuickTrade(pct)}
-                    className="rounded-xl border border-border bg-secondary py-3.5 text-center transition-colors hover:border-emerald/30 hover:bg-secondary/80 disabled:opacity-40"
-                  >
-                    <p className="font-display text-lg font-bold text-foreground">{label}</p>
-                    <p className="mt-0.5 text-[10px] text-muted">{t("aiTrading.tradePctLabel")}</p>
-                    <p className="mt-2 text-[11px] text-muted">{formatCurrency(amt)}</p>
-                    <p className="mt-1 text-xs font-semibold text-emerald">+{formatCurrency(profit)}</p>
-                  </button>
-                );
-              })}
-            </div>
+      {subTrades.length > 0 && (
+        <section className="overflow-hidden rounded-2xl border border-border bg-card">
+          <div className="border-b border-border/70 px-5 py-4">
+            <h3 className="font-display text-base font-semibold text-foreground">
+              {t("aiTrading.recentTrades")}
+            </h3>
+            <p className="mt-1 text-sm text-muted">{t("aiTrading.recentTradesDesc")}</p>
           </div>
-
-          <div className="rounded-xl border border-border bg-secondary/40 p-4">
-            <Label htmlFor="extra-trade" className="text-sm font-medium text-foreground">
-              {t("aiTrading.tradeAmount")}
-            </Label>
-            <div className="mt-2 flex gap-2">
-              <Input
-                id="extra-trade"
-                type="number"
-                min={1}
-                max={selectedSub.allocation}
-                value={tradeAmount}
-                onChange={(e) => setTradeAmount(e.target.value)}
-                placeholder={String(Math.floor(selectedSub.allocation * 0.25))}
-                className="h-11"
-              />
-              <Button
-                className="shrink-0"
-                disabled={loading || tradeNum <= 0}
-                onClick={() => onManualTrade(tradeNum)}
-              >
-                {loading ? t("aiTrading.trading") : t("aiTrading.executeTrade")}
-              </Button>
-            </div>
-            <p className="mt-2 text-xs leading-relaxed text-muted">
-              {t("aiTrading.tradeCryptoDesc", {
-                asset: selectedSub.crypto_asset,
-                rate: getTradeRate(botId),
-              })}
-              {tradeNum > 0 && (
-                <> · {t("aiTrading.expectedTradeProfit")}: +{formatCurrency(estimateTradeProfit(tradeNum, botId))}</>
-              )}
-            </p>
-          </div>
-
-          {subTrades.length > 0 && (
-            <div>
-              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted">
-                {t("aiTrading.recentTrades")}
-              </p>
-              <div className="overflow-hidden rounded-xl border border-border">
-                {subTrades.slice(0, 5).map((tr) => (
-                  <div
-                    key={tr.id}
-                    className="flex items-center justify-between border-b border-border/70 px-3 py-2.5 text-sm last:border-0"
+          <div className="divide-y divide-border/70">
+            {subTrades.slice(0, 8).map((tr) => {
+              const profit = Number(tr.profit);
+              const positive = profit >= 0;
+              return (
+                <div
+                  key={tr.id}
+                  className="flex items-center justify-between px-5 py-3 text-sm"
+                >
+                  <span className="font-medium text-foreground">{tr.crypto_asset}</span>
+                  <span
+                    className={cn(
+                      "font-semibold tabular-nums",
+                      positive ? "text-emerald" : "text-red-500"
+                    )}
                   >
-                    <span className="font-medium text-foreground">{tr.crypto_asset}</span>
-                    <span className="font-semibold tabular-nums text-emerald">+{formatCurrency(tr.profit)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
+                    {positive ? "+" : ""}
+                    {formatCurrency(profit)}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       <Button variant="outline" className="w-full" onClick={onStartAnother}>
         {t("aiTrading.buyAnother")}

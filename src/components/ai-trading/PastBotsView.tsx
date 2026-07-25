@@ -21,7 +21,10 @@ export function PastBotsView({ completedSubs }: PastBotsViewProps) {
         <p className="mt-10 text-center text-sm text-muted">{t("aiTrading.noHistory")}</p>
       ) : (
         <div className="mt-4 space-y-2.5">
-          {completedSubs.map((s) => (
+          {completedSubs.map((s) => {
+            const profit = Number(s.profit_earned ?? 0);
+            const positive = profit >= 0;
+            return (
             <div
               key={s.id}
               className="flex items-center justify-between rounded-xl border border-border bg-secondary/40 px-4 py-3.5"
@@ -32,11 +35,13 @@ export function PastBotsView({ completedSubs }: PastBotsViewProps) {
                   {formatCurrency(s.allocation)} · {s.crypto_asset} · {s.duration_hours}h
                 </p>
               </div>
-              <p className="shrink-0 font-semibold text-emerald">
-                +{formatCurrency(s.profit_earned ?? 0)}
+              <p className={`shrink-0 font-semibold ${positive ? "text-emerald" : "text-red-500"}`}>
+                {positive ? "+" : ""}
+                {formatCurrency(profit)}
               </p>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </FadeIn>

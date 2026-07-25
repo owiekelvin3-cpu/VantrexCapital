@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import {
-  Bot, CheckCircle, ChevronDown, ChevronRight, Sparkles,
+  Bot, CheckCircle, ChevronRight, Sparkles,
 } from "@/lib/icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,11 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { FadeIn } from "@/components/motion/Motion";
 import {
-  AI_BOTS, BEGINNER_CRYPTO, BEGINNER_DURATIONS, CRYPTO_ASSETS, RECOMMENDED_BOT_ID, getBotName,
+  AI_BOTS, BEGINNER_DURATIONS, CRYPTO_ASSETS, RECOMMENDED_BOT_ID, getBotName,
 } from "@/constants/ai-bots";
-import {
-  estimatePassiveProfit, getHourlyRate,
-} from "@/lib/ai-trading";
 import { formatCurrency, cn } from "@/lib/utils";
 import { convertFromUsd } from "@/lib/currency";
 import type { StartStep } from "./types";
@@ -28,8 +25,6 @@ interface StartBotFlowProps {
   onCryptoChange: (asset: string) => void;
   amount: string;
   onAmountChange: (value: string) => void;
-  showMoreOptions: boolean;
-  onToggleMoreOptions: () => void;
   balance: number;
   loading: boolean;
   onStart: () => void;
@@ -46,8 +41,6 @@ export function StartBotFlow({
   onCryptoChange,
   amount,
   onAmountChange,
-  showMoreOptions,
-  onToggleMoreOptions,
   balance,
   loading,
   onStart,
@@ -56,9 +49,6 @@ export function StartBotFlow({
   const bot = AI_BOTS.find((b) => b.id === selectedBot)!;
   const minPower = convertFromUsd(bot.minPower);
   const amountNum = parseFloat(amount) || 0;
-  const estimate = amountNum >= minPower
-    ? estimatePassiveProfit(amountNum, bot.id, durationHours)
-    : 0;
   const needsFunds = balance < minPower;
   const canStart = amountNum >= minPower && amountNum <= balance && !needsFunds;
 
@@ -150,7 +140,7 @@ export function StartBotFlow({
                       </div>
                       <p className="mt-1 text-sm text-muted">{b.simpleDescription}</p>
                       <p className="mt-2 text-xs text-muted">
-                        {t("aiTrading.startsAt")} {formatCurrency(convertFromUsd(b.minPower))} · {b.hourlyReturn}
+                        {t("aiTrading.startsAt")} {formatCurrency(convertFromUsd(b.minPower))}
                       </p>
                     </div>
                     {selected && <CheckCircle className="h-5 w-5 shrink-0 text-emerald" />}
@@ -234,57 +224,27 @@ export function StartBotFlow({
             </div>
           </div>
 
-          <div className="rounded-2xl border border-emerald/25 bg-emerald/[0.06] p-5 text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald">
-              {t("aiTrading.couldEarn")}
-            </p>
-            <p className="mt-2 font-display text-4xl font-bold text-emerald">
-              +{formatCurrency(estimate)}
-            </p>
-            <p className="mt-2 text-xs text-muted">
-              {t("aiTrading.couldEarnHint", {
-                bot: bot.name,
-                hours: durationHours,
-                rate: getHourlyRate(bot.id),
-              })}
-            </p>
-          </div>
-
-          <div className="overflow-hidden rounded-2xl border border-border bg-secondary/20">
-            <button
-              type="button"
-              onClick={onToggleMoreOptions}
-              className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-medium text-foreground"
-            >
-              {t("aiTrading.moreOptions")}
-              <ChevronDown
-                className={cn("h-4 w-4 text-muted transition-transform", showMoreOptions && "rotate-180")}
-              />
-            </button>
-            {showMoreOptions && (
-              <div className="border-t border-border/70 px-4 py-4">
-                <Label className="text-sm font-medium">{t("aiTrading.whichCoin")}</Label>
-                <p className="mt-1 text-xs text-muted">{t("aiTrading.whichCoinHint")}</p>
-                <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  {(showMoreOptions ? CRYPTO_ASSETS : BEGINNER_CRYPTO).map((c) => (
-                    <button
-                      key={c.id}
-                      type="button"
-                      onClick={() => onCryptoChange(c.id)}
-                      className={cn(
-                        "rounded-xl border py-3 text-center transition-colors",
-                        cryptoAsset === c.id
-                          ? "border-emerald/40 bg-emerald/10 text-emerald"
-                          : "border-border bg-secondary/40 hover:border-emerald/25"
-                      )}
-                    >
-                      <p className="font-display font-bold">{c.id}</p>
-                      <p className="text-[10px] text-muted">{c.label}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+          <div className="rounded-2xl border border-border bg-secondary/25 p-5">
+            <Label className="text-base font-medium">{t("aiTrading.whichCoin")}</Label>
+            <p className="mt-1 text-xs text-muted">{t("aiTrading.whichCoinHint")}</p>
+            <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {CRYPTO_ASSETS.map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => onCryptoChange(c.id)}
+                  className={cn(
+                    "rounded-xl border py-3 text-center transition-colors",
+                    cryptoAsset === c.id
+                      ? "border-emerald/40 bg-emerald/10 text-emerald"
+                      : "border-border bg-secondary/40 hover:border-emerald/25"
+                  )}
+                >
+                  <p className="font-display font-bold">{c.id}</p>
+                  <p className="text-[10px] text-muted">{c.label}</p>
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="rounded-xl border border-border/70 bg-secondary/15 px-4 py-3 text-xs leading-relaxed text-muted">

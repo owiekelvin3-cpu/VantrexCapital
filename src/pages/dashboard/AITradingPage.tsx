@@ -9,16 +9,34 @@ import { KycRequiredGate } from "@/components/dashboard/KycRequiredGate";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 import { AI_BOTS, RECOMMENDED_BOT_ID } from "@/constants/ai-bots";
-import { computeLiveProfit, estimateTradeProfit } from "@/lib/ai-trading";
+import { computeLiveProfit } from "@/lib/ai-trading";
 import { ensureValidSession } from "@/lib/auth-session";
 import { hasSeenWalkthrough } from "@/lib/ai-trading-onboarding";
 import { formatCurrency, cn } from "@/lib/utils";
 import { convertFromUsd } from "@/lib/currency";
+import { fetchTicker24h, TRADING_PAIRS } from "@/lib/market-api";
 import AITradingWalkthrough from "@/components/dashboard/AITradingWalkthrough";
 import { StartBotFlow } from "@/components/ai-trading/StartBotFlow";
 import { RunningBotView } from "@/components/ai-trading/RunningBotView";
 import { PastBotsView } from "@/components/ai-trading/PastBotsView";
 import type { AIBotTrade, AISubscription, AITradingView, StartStep } from "@/components/ai-trading/types";
+
+function toMarketSymbol(asset: string) {
+  const base = asset.replace(/[^A-Za-z]/g, "").toUpperCase() || "BTC";
+  const match = TRADING_PAIRS.find((p) => p.base === base || p.symbol === `${base}USDT`);
+  return match?.symbol ?? "BTCUSDT";
+}
+
+function seedEntryPrice(asset: string) {
+  switch (asset.toUpperCase()) {
+    case "ETH": return 3200;
+    case "SOL": return 145;
+    case "BNB": return 580;
+    case "XRP": return 0.62;
+    case "DOGE": return 0.16;
+    default: return 68000;
+  }
+}
 
 export default function AITradingPage() {
   const { t } = useTranslation();
@@ -38,7 +56,6 @@ export default function AITradingPage() {
   const [view, setView] = useState<AITradingView>("start");
   const [viewReady, setViewReady] = useState(false);
   const [tick, setTick] = useState(0);
-  const [showMoreOptions, setShowMoreOptions] = useState(false);
   const [showWalkthrough, setShowWalkthrough] = useState(false);
 
   const bot = AI_BOTS.find((b) => b.id === selectedBot)!;
@@ -136,6 +153,15 @@ export default function AITradingPage() {
     }
     setLoading(true);
     setMessage("");
+
+    let entryPrice = seedEntryPrice(cryptoAsset);
+    try {
+      const ticker = await fetchTicker24h(toMarketSymbol(cryptoAsset));
+      if (ticker?.lastPrice > 0) entryPrice = ticker.lastPrice;
+    } catch {
+      // Keep seed entry if market feed is unreachable.
+    }
+
     const { data, error } = await supabase
       .from("ai_trading_subscriptions")
       .insert({
@@ -147,6 +173,10 @@ export default function AITradingPage() {
         crypto_asset: cryptoAsset,
         market: "crypto",
         status: "active",
+        entry_price: entryPrice,
+        last_mark_price: entryPrice,
+        profit_earned: 0,
+        admin_pnl: 0,
       })
       .select()
       .single();
@@ -170,47 +200,6 @@ export default function AITradingPage() {
       setStartStep(1);
     }
     setLoading(false);
-  };
-
-  const executeTrade = async (tradeAmt: number) => {
-    if (!selectedSub) return;
-    setLoading(true);
-    setMessage("");
-    await ensureValidSession();
-    const { error } = await supabase.rpc("execute_ai_bot_trade", {
-      p_subscription_id: selectedSub.id,
-      p_trade_amount: tradeAmt,
-    });
-    if (error) setMessage(error.message);
-    else {
-      setMessage(
-        t("aiTrading.tradeSuccess", {
-          profit: formatCurrency(estimateTradeProfit(tradeAmt, selectedSub.bot_id ?? "nexus")),
-        })
-      );
-      await loadData();
-    }
-    setLoading(false);
-  };
-
-  const handleQuickTrade = async (pct: number) => {
-    if (!selectedSub) return;
-    const tradeAmt = Math.floor(selectedSub.allocation * pct);
-    if (tradeAmt <= 0) return;
-    await executeTrade(tradeAmt);
-  };
-
-  const handleManualTrade = async (tradeAmt: number) => {
-    if (!selectedSub) return;
-    if (!tradeAmt || tradeAmt <= 0) {
-      setMessage(t("aiTrading.invalidTradeAmount"));
-      return;
-    }
-    if (tradeAmt > selectedSub.allocation) {
-      setMessage(t("aiTrading.tradeExceedsPower"));
-      return;
-    }
-    await executeTrade(tradeAmt);
   };
 
   return (
@@ -263,8 +252,12 @@ export default function AITradingPage() {
                 <p className="text-[11px] font-medium uppercase tracking-wider text-muted">
                   {t("aiTrading.earningsSoFar")}
                 </p>
-                <p className="font-display text-xl font-semibold text-emerald" key={tick}>
-                  +{formatCurrency(totalEarnings)}
+                <p className={cn(
+                  "font-display text-xl font-semibold",
+                  totalEarnings >= 0 ? "text-emerald" : "text-red-500"
+                )} key={tick}>
+                  {totalEarnings >= 0 ? "+" : ""}
+                  {formatCurrency(totalEarnings)}
                 </p>
               </div>
             ) : (
@@ -337,8 +330,6 @@ export default function AITradingPage() {
             onCryptoChange={setCryptoAsset}
             amount={amount}
             onAmountChange={setAmount}
-            showMoreOptions={showMoreOptions}
-            onToggleMoreOptions={() => setShowMoreOptions((v) => !v)}
             balance={balance}
             loading={loading}
             onStart={() => void handlePurchase()}
@@ -352,10 +343,7 @@ export default function AITradingPage() {
             onSelectSub={setSelectedSubId}
             trades={trades}
             tick={tick}
-            loading={loading}
             onStartAnother={goStart}
-            onQuickTrade={(pct) => void handleQuickTrade(pct)}
-            onManualTrade={(amt) => void handleManualTrade(amt)}
           />
         )}
 
