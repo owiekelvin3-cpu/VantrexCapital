@@ -179,16 +179,6 @@ BEGIN
   )
   RETURNING * INTO v_trade;
 
-  PERFORM create_notification(
-    v_sub.user_id,
-    CASE WHEN v_amount > 0 THEN 'AI trading profit' ELSE 'AI trading loss' END,
-    v_sub.bot_name || ': ' ||
-    CASE WHEN v_amount > 0 THEN '+' ELSE '' END ||
-    format_usd_amount(v_amount) ||
-    CASE WHEN v_note IS NOT NULL THEN ' — ' || v_note ELSE '' END ||
-    '. Running total: ' || format_usd_amount(v_after) || '.'
-  );
-
   RETURN jsonb_build_object(
     'subscription_id', v_sub.id,
     'trade_id', v_trade.id,
@@ -200,5 +190,6 @@ BEGIN
 END;
 $$;
 
+GRANT EXECUTE ON FUNCTION public.admin_adjust_ai_bot_profit(UUID, NUMERIC, TEXT) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.mark_ai_bot_market_pnl(UUID, NUMERIC) TO authenticated;
 GRANT EXECUTE ON FUNCTION public.compute_ai_market_pnl(NUMERIC, NUMERIC, NUMERIC) TO authenticated;
