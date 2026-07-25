@@ -341,7 +341,6 @@ export default function AITradingPage() {
             activeSubs={activeSubs}
             selectedSub={selectedSub}
             onSelectSub={setSelectedSubId}
-            trades={trades}
             tick={tick}
             onStartAnother={goStart}
           />

@@ -13,13 +13,12 @@ import {
 } from "@/lib/ai-trading";
 import { supabase } from "@/lib/supabase";
 import { formatCurrency, cn } from "@/lib/utils";
-import type { AIBotTrade, AISubscription } from "./types";
+import type { AISubscription } from "./types";
 
 interface RunningBotViewProps {
   activeSubs: AISubscription[];
   selectedSub: AISubscription | null;
   onSelectSub: (id: string) => void;
-  trades: AIBotTrade[];
   tick: number;
   onStartAnother: () => void;
 }
@@ -28,7 +27,6 @@ export function RunningBotView({
   activeSubs,
   selectedSub,
   onSelectSub,
-  trades,
   tick,
   onStartAnother,
 }: RunningBotViewProps) {
@@ -75,7 +73,6 @@ export function RunningBotView({
       ? computeMarketPnL(selectedSub.allocation, entry, markPrice)
       : null;
   const progress = getRunProgress(selectedSub);
-  const subTrades = trades.filter((tr) => tr.subscription_id === selectedSub.id);
   const earningsPositive = earnings >= 0;
   const movePct =
     entry > 0 && markPrice && markPrice > 0 ? ((markPrice - entry) / entry) * 100 : null;
@@ -185,40 +182,6 @@ export function RunningBotView({
 
         <p className="mt-4 text-center text-sm text-muted">{t("aiTrading.moneyBackNote")}</p>
       </div>
-
-      {subTrades.length > 0 && (
-        <section className="overflow-hidden rounded-2xl border border-border bg-card">
-          <div className="border-b border-border/70 px-5 py-4">
-            <h3 className="font-display text-base font-semibold text-foreground">
-              {t("aiTrading.recentTrades")}
-            </h3>
-            <p className="mt-1 text-sm text-muted">{t("aiTrading.recentTradesDesc")}</p>
-          </div>
-          <div className="divide-y divide-border/70">
-            {subTrades.slice(0, 8).map((tr) => {
-              const profit = Number(tr.profit);
-              const positive = profit >= 0;
-              return (
-                <div
-                  key={tr.id}
-                  className="flex items-center justify-between px-5 py-3 text-sm"
-                >
-                  <span className="font-medium text-foreground">{tr.crypto_asset}</span>
-                  <span
-                    className={cn(
-                      "font-semibold tabular-nums",
-                      positive ? "text-emerald" : "text-red-500"
-                    )}
-                  >
-                    {positive ? "+" : ""}
-                    {formatCurrency(profit)}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      )}
 
       <Button variant="outline" className="w-full" onClick={onStartAnother}>
         {t("aiTrading.buyAnother")}
