@@ -19,7 +19,7 @@ import AITradingWalkthrough from "@/components/dashboard/AITradingWalkthrough";
 import { StartBotFlow } from "@/components/ai-trading/StartBotFlow";
 import { RunningBotView } from "@/components/ai-trading/RunningBotView";
 import { PastBotsView } from "@/components/ai-trading/PastBotsView";
-import type { AIBotTrade, AISubscription, AITradingView, StartStep } from "@/components/ai-trading/types";
+import type { AISubscription, AITradingView, StartStep } from "@/components/ai-trading/types";
 
 function toMarketSymbol(asset: string) {
   const base = asset.replace(/[^A-Za-z]/g, "").toUpperCase() || "BTC";
@@ -44,7 +44,6 @@ export default function AITradingPage() {
 
   const [balance, setBalance] = useState(0);
   const [subs, setSubs] = useState<AISubscription[]>([]);
-  const [trades, setTrades] = useState<AIBotTrade[]>([]);
   const [selectedBot, setSelectedBot] = useState(RECOMMENDED_BOT_ID);
   const [durationHours, setDurationHours] = useState(24);
   const [cryptoAsset, setCryptoAsset] = useState("BTC");
@@ -70,25 +69,18 @@ export default function AITradingPage() {
   const loadData = useCallback(async () => {
     if (!user) return;
     await syncBots();
-    const [balRes, subRes, tradeRes] = await Promise.all([
+    const [balRes, subRes] = await Promise.all([
       supabase.from("balances").select("amount").eq("user_id", user.id).single(),
       supabase
         .from("ai_trading_subscriptions")
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false }),
-      supabase
-        .from("ai_bot_trades")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(20),
     ]);
     if (balRes.error && balRes.error.code !== "PGRST116") setMessage(balRes.error.message);
     setBalance(balRes.data?.amount ?? 0);
     const loaded = (subRes.data as AISubscription[]) ?? [];
     setSubs(loaded);
-    setTrades((tradeRes.data as AIBotTrade[]) ?? []);
     const firstActive = loaded.find((s) => s.status === "active");
     setSelectedSubId((prev) => {
       if (prev && loaded.some((s) => s.id === prev && s.status === "active")) return prev;
