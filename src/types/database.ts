@@ -167,6 +167,7 @@ export interface Database {
           method: string;
           status: TransactionStatus;
           notes: string | null;
+          related_fee_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -178,6 +179,7 @@ export interface Database {
           method: string;
           status?: TransactionStatus;
           notes?: string | null;
+          related_fee_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -189,6 +191,7 @@ export interface Database {
           method?: string;
           status?: TransactionStatus;
           notes?: string | null;
+          related_fee_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -855,6 +858,7 @@ export interface Database {
           notes: string | null;
           assigned_by: string | null;
           paid_at: string | null;
+          paid_via_deposit_id: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -869,6 +873,7 @@ export interface Database {
           notes?: string | null;
           assigned_by?: string | null;
           paid_at?: string | null;
+          paid_via_deposit_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -883,6 +888,7 @@ export interface Database {
           notes?: string | null;
           assigned_by?: string | null;
           paid_at?: string | null;
+          paid_via_deposit_id?: string | null;
           created_at?: string;
           updated_at?: string;
         };

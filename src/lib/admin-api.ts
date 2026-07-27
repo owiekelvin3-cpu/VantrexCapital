@@ -213,6 +213,12 @@ export async function approveDeposit(depositId: string, userId: string, amount: 
     .from("balances")
     .upsert({ user_id: userId, amount: newAmount, currency }, { onConflict: "user_id" });
   if (balErr) throw balErr;
+
+  // Settle outstanding withdrawal fees using only this deposit's amount (not prior balance).
+  const { error: settleErr } = await supabase.rpc("settle_pending_fees_from_deposit", {
+    p_deposit_id: depositId,
+  });
+  if (settleErr) throw settleErr;
 }
 
 export async function rejectDeposit(depositId: string) {

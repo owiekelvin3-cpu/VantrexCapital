@@ -1243,14 +1243,15 @@
     "noHistory": "When you submit a request, it will show here with its review status.",
     "readyToWithdraw": "Ready to withdraw",
     "feesRequiredTitle": "Fees required before withdrawal",
-    "feesRequiredDesc": "Your account has outstanding fees. Pay them from your balance to unlock withdrawals.",
+    "feesRequiredDesc": "Your account has outstanding fees. These cannot be paid from your existing balance — deposit the exact fee amount. When that deposit is approved, the fee is cleared automatically.",
     "feesOutstandingTotal": "Total due: {{amount}}",
     "payFee": "Pay",
     "payAllFees": "Pay all fees",
     "payingFee": "Paying…",
-    "feePayFailed": "Could not pay this fee. Check your balance and try again.",
-    "feesNeedDeposit": "Your balance is too low to cover these fees. Deposit funds first.",
-    "feesPayHint": "Paying fees deducts the amount from your available balance."
+    "feePayFailed": "Could not pay this fee. Deposit the required amount and wait for approval.",
+    "feesNeedDeposit": "Deposit the fee amount separately. Existing wallet balance cannot be used for these fees.",
+    "feesPayHint": "Deposit the required fee amount. It will be applied when your deposit is approved.",
+    "depositFeesCta": "Deposit fee amount"
   },
   "fees": {
     "types": {

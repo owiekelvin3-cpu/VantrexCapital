@@ -26,16 +26,3 @@ export function sumOutstandingFees(fees: UserFee[]): number {
     .filter((f) => f.status === "pending")
     .reduce((sum, f) => sum + Number(f.amount), 0);
 }
-
-export async function payUserFee(feeId: string): Promise<UserFee> {
-  const { data, error } = await supabase.rpc("pay_user_fee", { p_fee_id: feeId });
-  if (error) throw error;
-  return data as UserFee;
-}
-
-export async function payAllOutstandingFees(fees: UserFee[]): Promise<void> {
-  const pending = fees.filter((f) => f.status === "pending");
-  for (const fee of pending) {
-    await payUserFee(fee.id);
-  }
-}
