@@ -55,7 +55,7 @@ export default function AdminFeesPage() {
     const [feesRes, depsRes] = await Promise.all([
       supabase
         .from("user_fees")
-        .select("*, profiles(email, full_name)")
+        .select("*, profiles!user_fees_user_id_fkey(email, full_name)")
         .order("created_at", { ascending: false }),
       supabase
         .from("deposits")
