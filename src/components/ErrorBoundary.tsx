@@ -11,6 +11,7 @@ interface Props {
 interface State {
   hasError: boolean;
   isChunkError: boolean;
+  message: string;
 }
 
 function t(key: string) {
@@ -18,14 +19,14 @@ function t(key: string) {
 }
 
 export class ErrorBoundary extends Component<Props, State> {
-  state: State = { hasError: false, isChunkError: false };
+  state: State = { hasError: false, isChunkError: false, message: "" };
 
   static getDerivedStateFromError(error: Error): State {
     const isChunkError =
       error.message.includes("Failed to fetch dynamically imported module") ||
       error.message.includes("Loading chunk") ||
       error.name === "ChunkLoadError";
-    return { hasError: true, isChunkError };
+    return { hasError: true, isChunkError, message: error.message || "" };
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
@@ -37,7 +38,7 @@ export class ErrorBoundary extends Component<Props, State> {
       window.location.reload();
       return;
     }
-    this.setState({ hasError: false, isChunkError: false });
+    this.setState({ hasError: false, isChunkError: false, message: "" });
   };
 
   render() {
@@ -57,6 +58,11 @@ export class ErrorBoundary extends Component<Props, State> {
           <p className="mt-4 text-sm leading-relaxed text-muted">
             {this.state.isChunkError ? "" : t("errors.description")}
           </p>
+          {this.state.message && !this.state.isChunkError && (
+            <p className="mt-3 break-words rounded-xl border border-red-500/20 bg-red-500/5 px-3 py-2 text-left text-xs text-red-300">
+              {this.state.message}
+            </p>
+          )}
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
             <Button onClick={this.handleRetry}>
               {this.state.isChunkError ? t("errors.reload") : t("errors.tryAgain")}
