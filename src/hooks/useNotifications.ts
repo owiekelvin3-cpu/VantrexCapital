@@ -23,15 +23,21 @@ export function useNotifications(userId: string | undefined, options?: UseNotifi
   const enableDelivery = options?.enableDelivery !== false;
   const knownIdsRef = useRef<Set<string>>(new Set());
   const initializedRef = useRef(false);
+  const pushTargetPathRef = useRef(pushTargetPath);
+  const enableDeliveryRef = useRef(enableDelivery);
+  const refreshRef = useRef<() => Promise<void>>(async () => undefined);
+
+  pushTargetPathRef.current = pushTargetPath;
+  enableDeliveryRef.current = enableDelivery;
 
   const handleIncoming = useCallback((notification: Notification, isNew: boolean) => {
     if (!isNew) return;
     if (knownIdsRef.current.has(notification.id)) return;
     knownIdsRef.current.add(notification.id);
-    if (enableDelivery) {
-      deliverNotification(notification, { url: pushTargetPath });
+    if (enableDeliveryRef.current) {
+      deliverNotification(notification, { url: pushTargetPathRef.current });
     }
-  }, [pushTargetPath, enableDelivery]);
+  }, []);
 
   const refresh = useCallback(async () => {
     if (!userId) {
@@ -65,48 +71,58 @@ export function useNotifications(userId: string | undefined, options?: UseNotifi
     setLoading(false);
   }, [userId, handleIncoming]);
 
+  refreshRef.current = refresh;
+
   useEffect(() => {
     initializedRef.current = false;
     knownIdsRef.current = new Set();
-    refresh();
+    void refresh();
   }, [refresh]);
 
   useEffect(() => {
     if (!userId) return;
 
-    const channel = supabase
-      .channel(`notifications:${userId}:${enableDelivery ? "live" : "list"}`, {
-        config: { broadcast: { self: false } },
-      })
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
-        (payload) => {
-          const notification = payload.new as Notification;
-          setNotifications((prev) => {
-            if (prev.some((n) => n.id === notification.id)) return prev;
-            return [notification, ...prev];
-          });
-          handleIncoming(notification, true);
-        }
-      )
-      .subscribe((status) => {
-        if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
-          console.warn("[notifications] Realtime channel issue:", status);
-        }
-      });
+    // Always use a unique topic. Reusing a name returns an already-subscribed
+    // channel; calling .on() afterward throws and crashes the ErrorBoundary.
+    const topic = `notifications:${userId}:${enableDelivery ? "live" : "list"}:${crypto.randomUUID().slice(0, 8)}`;
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+
+    try {
+      channel = supabase
+        .channel(topic)
+        .on(
+          "postgres_changes",
+          { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
+          (payload) => {
+            const notification = payload.new as Notification;
+            setNotifications((prev) => {
+              if (prev.some((n) => n.id === notification.id)) return prev;
+              return [notification, ...prev];
+            });
+            handleIncoming(notification, true);
+          }
+        )
+        .subscribe((status) => {
+          if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+            console.warn("[notifications] Realtime channel issue:", status);
+          }
+        });
+    } catch (err) {
+      console.warn("[notifications] Failed to subscribe realtime:", err);
+      channel = null;
+    }
 
     const pollTimer = setInterval(() => {
       if (document.visibilityState === "visible") {
-        void refresh();
+        void refreshRef.current();
       }
     }, POLL_MS);
 
     return () => {
       clearInterval(pollTimer);
-      supabase.removeChannel(channel);
+      if (channel) void supabase.removeChannel(channel);
     };
-  }, [userId, handleIncoming, refresh, enableDelivery]);
+  }, [userId, enableDelivery, handleIncoming]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
