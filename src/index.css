@@ -2,69 +2,75 @@
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
 
-  --color-void: #09090b;
+  --color-void: #0f0f0f;
   --color-charcoal: #111111;
-  --color-surface: #161616;
-  --color-surface-elevated: #1e1e1e;
-  --color-navy: #0f172a;
-  --color-slate: #1e293b;
-  --color-emerald: #10b981;
-  --color-emerald-soft: #34d399;
-  --color-emerald-glow: #059669;
-  --color-gold: #c9a227;
-  --color-gold-soft: #e4c65a;
-  --color-muted: #9ca3af;
-  --color-foreground: #fafafa;
+  --color-surface: #1a1a1a;
+  --color-surface-elevated: #242424;
+  --color-navy: #111111;
+  --color-slate: #242424;
+  --color-emerald: #e2ff4c;
+  --color-emerald-soft: #f0ffd6;
+  --color-emerald-glow: #cce835;
+  --color-gold: #fbbf24;
+  --color-gold-soft: #fde68a;
+  --color-muted: #a3a3a3;
+  --color-foreground: #f5f5f5;
 
-  --color-background: #09090b;
-  --color-card: rgba(255, 255, 255, 0.03);
-  --color-card-foreground: #fafafa;
-  --color-primary: #10b981;
-  --color-primary-foreground: #09090b;
-  --color-secondary: rgba(255, 255, 255, 0.06);
-  --color-secondary-foreground: #fafafa;
-  --color-muted-foreground: #9ca3af;
-  --color-accent: #10b981;
-  --color-accent-foreground: #09090b;
-  --color-destructive: #ef4444;
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-input: rgba(255, 255, 255, 0.06);
-  --color-ring: #10b981;
+  --color-background: #0f0f0f;
+  --color-card: #1a1a1a;
+  --color-card-foreground: #f5f5f5;
+  --color-primary: #e2ff4c;
+  --color-primary-foreground: #111111;
+  --color-secondary: #242424;
+  --color-secondary-foreground: #f5f5f5;
+  --color-muted-foreground: #a3a3a3;
+  --color-accent: #e2ff4c;
+  --color-accent-foreground: #111111;
+  --color-destructive: #f87171;
+  --color-border: #2e2e2e;
+  --color-input: #242424;
+  --color-ring: #e2ff4c;
 
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
   --radius-lg: 1rem;
   --radius-xl: 1.25rem;
   --radius-2xl: 1.5rem;
-  --radius-3xl: 2rem;
+  --radius-3xl: 1.75rem;
 }
 
 :root {
   color-scheme: dark;
+  --logo-mark-bg: #e2ff4c;
+  --logo-mark-stroke: #111111;
 }
 
 :root.light {
   color-scheme: light;
-  --color-void: #f8fafc;
+  --color-void: #f4f7f6;
   --color-charcoal: #ffffff;
   --color-surface: #ffffff;
-  --color-surface-elevated: #f1f5f9;
-  --color-navy: #e2e8f0;
-  --color-slate: #cbd5e1;
-  --color-muted: #64748b;
-  --color-foreground: #0f172a;
-  --color-background: #f1f5f9;
+  --color-surface-elevated: #eceef2;
+  --color-navy: #eceef2;
+  --color-slate: #e5e7eb;
+  --color-muted: #4b5563;
+  --color-foreground: #111111;
+  --color-background: #f4f7f6;
   --color-card: #ffffff;
-  --color-card-foreground: #0f172a;
-  --color-primary-foreground: #ffffff;
-  --color-secondary: rgba(15, 23, 42, 0.06);
-  --color-secondary-foreground: #0f172a;
-  --color-muted-foreground: #64748b;
-  --color-accent-foreground: #ffffff;
-  --color-border: rgba(15, 23, 42, 0.12);
+  --color-card-foreground: #111111;
+  --color-primary: #e2ff4c;
+  --color-primary-foreground: #111111;
+  --color-secondary: #eceef2;
+  --color-secondary-foreground: #111111;
+  --color-muted-foreground: #4b5563;
+  --color-accent: #e2ff4c;
+  --color-accent-foreground: #111111;
+  --color-border: #e5e7eb;
   --color-input: #ffffff;
+  --logo-mark-bg: #111111;
+  --logo-mark-stroke: #ffffff;
 }
 
 @layer base {
@@ -83,17 +89,27 @@
 
   body {
     @apply bg-void text-foreground font-sans antialiased;
-    background: linear-gradient(180deg, #09090b 0%, #0c0c0e 50%, #09090b 100%);
-    /* fixed backgrounds paint incorrectly / jank on iOS Safari */
+    background: #0f0f0f;
     background-attachment: scroll;
     min-height: 100dvh;
     overflow-x: clip;
     -webkit-tap-highlight-color: transparent;
+    font-size: 14px;
+    line-height: 1.5;
   }
 
   :root.light body {
-    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 50%, #f8fafc 100%);
+    background: #f4f7f6;
     background-attachment: scroll;
+  }
+
+  .logo-mark-plate {
+    fill: var(--logo-mark-bg);
+  }
+
+  .logo-mark-peak {
+    stroke: var(--logo-mark-stroke);
+    fill: none;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -102,16 +118,16 @@
   }
 
   ::selection {
-    background: rgba(16, 185, 129, 0.35);
-    color: #fff;
+    background: rgba(226, 255, 76, 0.35);
+    color: #111111;
   }
 
   :root.light ::selection {
-    color: #0f172a;
+    color: #111111;
   }
 
   :focus-visible {
-    outline: 2px solid rgba(16, 185, 129, 0.5);
+    outline: 2px solid rgba(226, 255, 76, 0.55);
     outline-offset: 2px;
   }
 
@@ -160,7 +176,7 @@
   }
 
   .text-market-up {
-    color: #10b981;
+    color: #34d399;
   }
 
   .text-market-down {
@@ -186,7 +202,7 @@
 
   /* ── Gradients (never flat) ── */
   .bg-gradient-void {
-    background: linear-gradient(180deg, #09090b 0%, #111111 50%, #09090b 100%);
+    background: linear-gradient(180deg, #0f0f0f 0%, #111111 50%, #0f0f0f 100%);
   }
 
   :root.light .bg-gradient-void {
@@ -202,19 +218,19 @@
   }
 
   .bg-gradient-emerald {
-    background: linear-gradient(135deg, #34d399 0%, #10b981 45%, #059669 100%);
+    background: linear-gradient(135deg, #f0ffd6 0%, #e2ff4c 45%, #cce835 100%);
   }
 
   .bg-gradient-emerald-subtle {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.05) 100%);
+    background: linear-gradient(135deg, rgba(226, 255, 76, 0.15) 0%, rgba(204, 232, 53, 0.05) 100%);
   }
 
   :root.light .bg-gradient-emerald-subtle {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(5, 150, 105, 0.04) 100%);
+    background: linear-gradient(135deg, rgba(226, 255, 76, 0.12) 0%, rgba(204, 232, 53, 0.04) 100%);
   }
 
   .bg-gradient-gold-subtle {
-    background: linear-gradient(135deg, rgba(201, 162, 39, 0.12) 0%, rgba(201, 162, 39, 0.02) 100%);
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.12) 0%, rgba(251, 191, 36, 0.02) 100%);
   }
 
   .bg-gradient-card {
@@ -232,23 +248,23 @@
 
   .bg-gradient-hero {
     background:
-      radial-gradient(ellipse 90% 60% at 50% -30%, rgba(16, 185, 129, 0.14), transparent 60%),
-      radial-gradient(ellipse 50% 40% at 100% 0%, rgba(201, 162, 39, 0.06), transparent 50%),
-      radial-gradient(ellipse 40% 30% at 0% 100%, rgba(16, 185, 129, 0.05), transparent 50%);
+      radial-gradient(ellipse 90% 60% at 50% -30%, rgba(226, 255, 76, 0.14), transparent 60%),
+      radial-gradient(ellipse 50% 40% at 100% 0%, rgba(251, 191, 36, 0.06), transparent 50%),
+      radial-gradient(ellipse 40% 30% at 0% 100%, rgba(226, 255, 76, 0.05), transparent 50%);
   }
 
   :root.light .bg-gradient-hero {
     background:
-      radial-gradient(ellipse 90% 60% at 50% -30%, rgba(16, 185, 129, 0.1), transparent 60%),
-      radial-gradient(ellipse 50% 40% at 100% 0%, rgba(201, 162, 39, 0.05), transparent 50%),
-      radial-gradient(ellipse 40% 30% at 0% 100%, rgba(16, 185, 129, 0.04), transparent 50%);
+      radial-gradient(ellipse 90% 60% at 50% -30%, rgba(226, 255, 76, 0.1), transparent 60%),
+      radial-gradient(ellipse 50% 40% at 100% 0%, rgba(251, 191, 36, 0.05), transparent 50%),
+      radial-gradient(ellipse 40% 30% at 0% 100%, rgba(226, 255, 76, 0.04), transparent 50%);
   }
 
   .border-gradient {
     border: 1px solid transparent;
     background:
       linear-gradient(var(--color-charcoal), var(--color-charcoal)) padding-box,
-      linear-gradient(135deg, rgba(16, 185, 129, 0.35), rgba(255, 255, 255, 0.08), rgba(201, 162, 39, 0.2)) border-box;
+      linear-gradient(135deg, rgba(226, 255, 76, 0.35), rgba(255, 255, 255, 0.08), rgba(251, 191, 36, 0.2)) border-box;
   }
 
   .text-gradient {
@@ -274,14 +290,14 @@
   }
 
   .text-gradient-emerald {
-    background: linear-gradient(135deg, #6ee7b7 0%, #34d399 30%, #10b981 60%, #059669 100%);
+    background: linear-gradient(135deg, #f0ffd6 0%, #e2ff4c 45%, #cce835 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
   .text-gradient-gold {
-    background: linear-gradient(135deg, #f5e6a3 0%, #c9a227 50%, #a68520 100%);
+    background: linear-gradient(135deg, #fde68a 0%, #fbbf24 50%, #d97706 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -318,24 +334,24 @@
 
   .glow-emerald {
     box-shadow:
-      0 0 40px rgba(16, 185, 129, 0.12),
-      0 0 80px rgba(16, 185, 129, 0.06),
+      0 0 40px rgba(226, 255, 76, 0.12),
+      0 0 80px rgba(226, 255, 76, 0.06),
       0 20px 60px rgba(0, 0, 0, 0.4);
   }
 
   :root.light .glow-emerald {
     box-shadow:
-      0 0 40px rgba(16, 185, 129, 0.1),
-      0 0 80px rgba(16, 185, 129, 0.05),
+      0 0 40px rgba(226, 255, 76, 0.1),
+      0 0 80px rgba(226, 255, 76, 0.05),
       0 16px 40px rgba(15, 23, 42, 0.08);
   }
 
   .glow-emerald-sm {
-    box-shadow: 0 0 24px rgba(16, 185, 129, 0.15), 0 8px 32px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 24px rgba(226, 255, 76, 0.15), 0 8px 32px rgba(0, 0, 0, 0.3);
   }
 
   :root.light .glow-emerald-sm {
-    box-shadow: 0 0 20px rgba(16, 185, 129, 0.12), 0 8px 24px rgba(15, 23, 42, 0.08);
+    box-shadow: 0 0 20px rgba(226, 255, 76, 0.12), 0 8px 24px rgba(15, 23, 42, 0.08);
   }
 
   .card-elevated {
@@ -357,17 +373,17 @@
 
   .card-elevated:hover {
     transform: translateY(-4px);
-    border-color: rgba(16, 185, 129, 0.2);
+    border-color: rgba(226, 255, 76, 0.2);
     box-shadow:
       0 1px 0 rgba(255, 255, 255, 0.06) inset,
-      0 0 40px rgba(16, 185, 129, 0.08),
+      0 0 40px rgba(226, 255, 76, 0.08),
       0 28px 60px -12px rgba(0, 0, 0, 0.55);
   }
 
   :root.light .card-elevated:hover {
     box-shadow:
       0 1px 0 rgba(255, 255, 255, 1) inset,
-      0 0 28px rgba(16, 185, 129, 0.08),
+      0 0 28px rgba(226, 255, 76, 0.08),
       0 20px 48px -12px rgba(15, 23, 42, 0.14);
   }
 
@@ -421,18 +437,18 @@
 
   :root.light .dashboard-atmosphere {
     background:
-      radial-gradient(ellipse 70% 45% at 0% -10%, rgba(16, 185, 129, 0.08), transparent 55%),
-      radial-gradient(ellipse 50% 40% at 100% 0%, rgba(201, 162, 39, 0.06), transparent 50%),
-      radial-gradient(ellipse 60% 50% at 50% 120%, rgba(16, 185, 129, 0.04), transparent 55%);
+      radial-gradient(ellipse 70% 45% at 0% -10%, rgba(226, 255, 76, 0.08), transparent 55%),
+      radial-gradient(ellipse 50% 40% at 100% 0%, rgba(251, 191, 36, 0.06), transparent 50%),
+      radial-gradient(ellipse 60% 50% at 50% 120%, rgba(226, 255, 76, 0.04), transparent 55%);
   }
 
   /* Finance hero — void base with soft brand washes */
   .dashboard-hero {
-    @apply relative overflow-hidden rounded-[1.75rem] border-0 bg-[#0c0c0e] text-white shadow-[0_18px_48px_rgba(0,0,0,0.28)];
+    @apply relative overflow-hidden rounded-[1.75rem] border-0 bg-[#0f0f0f] text-white shadow-[0_18px_48px_rgba(0,0,0,0.28)];
     background-image:
       radial-gradient(ellipse 70% 55% at 0% -10%, color-mix(in oklab, var(--color-emerald) 18%, transparent), transparent 58%),
       radial-gradient(ellipse 45% 40% at 100% 0%, color-mix(in oklab, var(--color-gold) 9%, transparent), transparent 52%),
-      linear-gradient(165deg, #111113 0%, #09090b 58%, #0a0d0c 100%);
+      linear-gradient(165deg, #111113 0%, #0f0f0f 58%, #0a0d0c 100%);
   }
 
   :root.light .dashboard-hero {
@@ -518,7 +534,7 @@
 
   .dashboard-dock-inner {
     pointer-events: auto;
-    @apply flex w-full max-w-sm items-center justify-between gap-1 rounded-full border border-border/60 bg-[#0c0c0e]/95 px-2 py-1.5 shadow-[0_12px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl;
+    @apply flex w-full max-w-sm items-center justify-between gap-1 rounded-full border border-border/60 bg-[#0f0f0f]/95 px-2 py-1.5 shadow-[0_12px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl;
   }
 
   :root.light .dashboard-dock-inner {
@@ -559,9 +575,9 @@
 
   :root.light .admin-atmosphere {
     background:
-      radial-gradient(ellipse 65% 40% at 0% -5%, rgba(201, 162, 39, 0.1), transparent 55%),
-      radial-gradient(ellipse 50% 35% at 100% 0%, rgba(16, 185, 129, 0.06), transparent 50%),
-      radial-gradient(ellipse 55% 45% at 50% 120%, rgba(201, 162, 39, 0.05), transparent 55%);
+      radial-gradient(ellipse 65% 40% at 0% -5%, rgba(251, 191, 36, 0.1), transparent 55%),
+      radial-gradient(ellipse 50% 35% at 100% 0%, rgba(226, 255, 76, 0.06), transparent 50%),
+      radial-gradient(ellipse 55% 45% at 50% 120%, rgba(251, 191, 36, 0.05), transparent 55%);
   }
 
   .admin-shell {
@@ -630,8 +646,8 @@
 
   .select-input:focus {
     outline: none;
-    border-color: rgba(16, 185, 129, 0.4);
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+    border-color: rgba(226, 255, 76, 0.4);
+    box-shadow: 0 0 0 3px rgba(226, 255, 76, 0.15);
   }
 
   .scrollbar-none {
@@ -654,8 +670,8 @@
 
   .textarea-input:focus {
     outline: none;
-    border-color: rgba(16, 185, 129, 0.4);
-    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+    border-color: rgba(226, 255, 76, 0.4);
+    box-shadow: 0 0 0 3px rgba(226, 255, 76, 0.15);
   }
 
   .data-table th {
@@ -672,7 +688,7 @@
 
   .divider-gradient {
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.3), rgba(201, 162, 39, 0.15), transparent);
+    background: linear-gradient(90deg, transparent, rgba(226, 255, 76, 0.3), rgba(251, 191, 36, 0.15), transparent);
   }
 }
 
@@ -735,7 +751,7 @@
 
 :root.light .support-thread-wallpaper {
   background:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(16, 185, 129, 0.06), transparent),
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(226, 255, 76, 0.06), transparent),
     #f8fafc;
 }
 

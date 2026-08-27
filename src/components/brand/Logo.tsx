@@ -17,8 +17,8 @@ const sizes = {
 };
 
 /**
- * TradingView-style mark: three ascending bars + clean single-line wordmark.
- * Flat, geometric, no plate / glow / sparkles.
+ * Peak mark — charcoal plate + white stroke in light mode,
+ * lime plate + charcoal stroke in dark mode (personal broker ONYX look).
  */
 export function LogoIcon({
   className,
@@ -27,20 +27,31 @@ export function LogoIcon({
   className?: string;
   variant?: "default" | "gold";
 }) {
-  const fill = variant === "gold" ? BRAND.colors.gold : BRAND.colors.emerald;
+  if (variant === "gold") {
+    return (
+      <svg viewBox="0 0 32 32" fill="none" className={className} aria-hidden="true">
+        <rect width="32" height="32" rx="6" fill={BRAND.colors.gold} />
+        <path
+          d="M8 22L16 8L24 22"
+          stroke={BRAND.colors.charcoal}
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
 
   return (
-    <svg
-      viewBox="0 0 32 32"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      aria-hidden="true"
-    >
-      {/* Ascending market bars — TradingView-caliber simplicity */}
-      <rect x="2" y="18" width="7" height="12" rx="1.5" fill={fill} opacity="0.55" />
-      <rect x="12.5" y="10" width="7" height="20" rx="1.5" fill={fill} opacity="0.8" />
-      <rect x="23" y="2" width="7" height="28" rx="1.5" fill={fill} />
+    <svg viewBox="0 0 32 32" fill="none" className={className} aria-hidden="true">
+      <rect width="32" height="32" rx="6" className="logo-mark-plate" />
+      <path
+        d="M8 22L16 8L24 22"
+        className="logo-mark-peak"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
