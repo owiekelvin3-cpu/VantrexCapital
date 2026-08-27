@@ -108,9 +108,9 @@ export default function SupportPage() {
         onLoadMore={support.loadOlder}
       />
       {active.status === "resolved" ? (
-        <div className="shrink-0 border-t border-border p-4 text-center text-sm text-muted">
+        <div className="shrink-0 border-t border-[#e8eaed] bg-[#f7f8fa] p-4 text-center text-sm text-[#5f6368]">
           {t("support.resolvedHint")}{" "}
-          <button type="button" className="font-medium text-emerald hover:underline" onClick={() => void support.reopen(active.id)}>
+          <button type="button" className="font-medium text-[#1a73e8] hover:underline" onClick={() => void support.reopen(active.id)}>
             {t("support.reopen")}
           </button>
         </div>
@@ -120,14 +120,8 @@ export default function SupportPage() {
     </>
   ) : null;
 
-  const threadTitle = composing
-    ? t("support.startConversation")
-    : active?.subject ?? t("support.title");
-  const threadSubtitle = composing
-    ? t("support.startHint")
-    : active
-      ? t("support.ticketId", { id: active.id.slice(0, 8) })
-      : undefined;
+  const threadTitle = t("support.liveTitle");
+  const threadSubtitle = t("support.liveSubtitle");
 
   return (
     <div className="flex min-h-0 flex-col gap-4 lg:h-[calc(100dvh-8.5rem)] lg:min-h-[520px]">
@@ -207,16 +201,14 @@ export default function SupportPage() {
         </div>
       </div>
 
-      {/* Mobile full-screen Messages overlay */}
+      {/* Mobile full-screen live chat overlay */}
       <SupportMobileChatOverlay open={showThread}>
         <SupportThreadFrame
+          variant="live"
           title={threadTitle}
           subtitle={threadSubtitle}
           onBack={backToList}
           safeAreaTop
-          trailing={
-            active ? <SupportStatusBadge status={active.status} /> : undefined
-          }
         >
           {threadBody}
         </SupportThreadFrame>
@@ -277,21 +269,22 @@ export default function SupportPage() {
           </div>
         </aside>
 
-        <section className="flex min-h-0 min-w-0 flex-col">
+        <section className="flex min-h-0 min-w-0 flex-col overflow-hidden">
           {composing || active ? (
             <SupportThreadFrame
+              variant="live"
               title={threadTitle}
               subtitle={threadSubtitle}
               trailing={
-                active ? (
-                  <div className="flex items-center gap-2 pr-2">
-                    <SupportStatusBadge status={active.status} />
-                    {active.status === "resolved" && (
-                      <Button size="sm" variant="outline" onClick={() => void support.reopen(active.id)}>
-                        {t("support.reopen")}
-                      </Button>
-                    )}
-                  </div>
+                active?.status === "resolved" ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="mr-1 border-white/40 bg-white/10 text-white hover:bg-white/20 hover:text-white"
+                    onClick={() => void support.reopen(active.id)}
+                  >
+                    {t("support.reopen")}
+                  </Button>
                 ) : undefined
               }
             >

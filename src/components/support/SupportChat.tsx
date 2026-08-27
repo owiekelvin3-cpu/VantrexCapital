@@ -11,10 +11,12 @@ import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
-  FileText, ImageIcon, Paperclip, Send, Smile, X, MessageCircle,
+  FileText, ImageIcon, Paperclip, Send, Smile, X, MessageCircle, ChevronDown, MoreHorizontal,
 } from "@/lib/icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { LogoIcon } from "@/components/brand/Logo";
+import { BRAND } from "@/constants/brand";
 import {
   getAttachmentUrl,
   SUPPORT_EMOJI,
@@ -23,7 +25,14 @@ import {
 } from "@/lib/support";
 import type { SupportAttachment, SupportConversationStatus } from "@/types/database";
 
+export type SupportChatVariant = "default" | "live";
+
 const SupportViewportContext = createContext({ keyboardOpen: false });
+const SupportVariantContext = createContext<SupportChatVariant>("default");
+
+function useSupportVariant() {
+  return useContext(SupportVariantContext);
+}
 
 /** Pin chat shell to the visible viewport (handles iOS/Android keyboard). */
 export function useVisualViewportBox() {
@@ -254,6 +263,27 @@ function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
 }
 
+function formatRelativeTime(iso: string, t: (key: string, opts?: Record<string, unknown>) => string) {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diffMs / 60_000);
+  if (mins < 1) return t("support.justNow");
+  if (mins === 1) return t("support.minuteAgo");
+  if (mins < 60) return t("support.minutesAgo", { count: mins });
+  const hours = Math.floor(mins / 60);
+  if (hours === 1) return t("support.hourAgo");
+  if (hours < 48) return t("support.hoursAgo", { count: hours });
+  const days = Math.floor(hours / 24);
+  if (days === 1) return t("support.dayAgo");
+  if (days < 7) return t("support.daysAgo", { count: days });
+  return new Date(iso).toLocaleString(undefined, {
+    month: "numeric",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
 function formatDayLabel(iso: string, t: (k: string) => string) {
   const d = new Date(iso);
   const today = new Date();
@@ -261,7 +291,13 @@ function formatDayLabel(iso: string, t: (k: string) => string) {
   yesterday.setDate(today.getDate() - 1);
   if (d.toDateString() === today.toDateString()) return t("support.today");
   if (d.toDateString() === yesterday.toDateString()) return t("support.yesterday");
-  return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+  return d.toLocaleString(undefined, {
+    month: "numeric",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }
 
 function dayKey(iso: string) {
@@ -311,6 +347,65 @@ export function SupportMessageBubble({
   clustered?: boolean;
 }) {
   const { t } = useTranslation();
+  const variant = useSupportVariant();
+  const live = variant === "live";
+
+  if (live && !message.is_internal) {
+    return (
+      <motion.div
+        layout
+        initial={{ opacity: 0, y: 6, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        className={cn(
+          "flex w-full items-end gap-2",
+          isOwn ? "justify-end" : "justify-start",
+          clustered ? "mt-1" : "mt-3"
+        )}
+      >
+        {!isOwn && (
+          <span
+            className={cn(
+              "mb-5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#e8eaed] text-[#5f6368]",
+              clustered && "invisible"
+            )}
+            aria-hidden={clustered}
+          >
+            <LogoIcon className="h-4 w-4" />
+          </span>
+        )}
+        <div className={cn("flex max-w-[78%] flex-col sm:max-w-[64%]", isOwn ? "items-end" : "items-start")}>
+          <div
+            className={cn(
+              "px-3.5 py-2.5 text-[15px] leading-snug",
+              isOwn
+                ? cn(
+                    "support-live-user-bubble shadow-sm",
+                    clustered ? "rounded-[18px] rounded-br-md" : "rounded-[18px] rounded-br-[6px]"
+                  )
+                : cn(
+                    "support-live-agent-bubble",
+                    clustered ? "rounded-[18px] rounded-bl-md" : "rounded-[18px] rounded-bl-[6px]"
+                  )
+            )}
+          >
+            {message.body && <p className="whitespace-pre-wrap break-words">{message.body}</p>}
+            {message.attachments?.map((att) => <AttachmentChip key={att.id} att={att} />)}
+          </div>
+          <div
+            className={cn(
+              "mt-1 flex items-center gap-1.5 px-1 text-[11px] tabular-nums text-[#9aa0a6]",
+              isOwn && "justify-end"
+            )}
+          >
+            <span>{formatRelativeTime(message.created_at, t)}</span>
+            {message.failed && <span className="text-red-400">!</span>}
+            {message.pending && <span>…</span>}
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       layout
@@ -370,6 +465,8 @@ export function SupportMessageList({
   className?: string;
 }) {
   const { t } = useTranslation();
+  const variant = useSupportVariant();
+  const live = variant === "live";
   const scrollerRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const prevLen = useRef(0);
@@ -381,8 +478,6 @@ export function SupportMessageList({
     if (!grew) return;
     const scroller = scrollerRef.current;
     if (!scroller) return;
-    // Prefer scrolling the list container — scrollIntoView can jump the
-    // visualViewport / keyboard layout on mobile.
     scroller.scrollTop = scroller.scrollHeight;
   }, [messages.length]);
 
@@ -414,6 +509,7 @@ export function SupportMessageList({
       ref={scrollerRef}
       className={cn(
         "support-message-scroller min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-3 sm:px-4",
+        live && "bg-white px-3.5 sm:px-5",
         className
       )}
     >
@@ -427,7 +523,12 @@ export function SupportMessageList({
       {items.map((item) =>
         item.type === "day" ? (
           <div key={item.key} className="flex justify-center py-3">
-            <span className="rounded-full bg-secondary/80 px-3 py-1 text-[11px] font-medium text-muted shadow-sm">
+            <span
+              className={cn(
+                "rounded-full px-3 py-1 text-[11px] font-medium shadow-sm",
+                live ? "support-live-day-chip" : "bg-secondary/80 text-muted"
+              )}
+            >
               {item.label}
             </span>
           </div>
@@ -461,6 +562,8 @@ export function SupportComposer({
   keyboardOpen?: boolean;
 }) {
   const { t } = useTranslation();
+  const variant = useSupportVariant();
+  const live = variant === "live";
   const viewport = useContext(SupportViewportContext);
   const kbOpen = keyboardOpen ?? viewport.keyboardOpen;
   const [text, setText] = useState("");
@@ -470,12 +573,13 @@ export function SupportComposer({
   const [sending, setSending] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const taRef = useRef<HTMLTextAreaElement>(null);
+  const canSend = Boolean(text.trim() || files.length > 0);
 
   const resize = () => {
     const el = taRef.current;
     if (!el) return;
     el.style.height = "auto";
-    el.style.height = `${Math.min(el.scrollHeight, 100)}px`;
+    el.style.height = `${Math.min(el.scrollHeight, live ? 96 : 100)}px`;
   };
 
   useEffect(() => {
@@ -502,6 +606,133 @@ export function SupportComposer({
       setSending(false);
     }
   };
+
+  if (live) {
+    return (
+      <div
+        className={cn(
+          "support-composer support-live-composer shrink-0 border-t border-[#e8eaed] px-3 pt-2",
+          kbOpen ? "pb-2" : "pb-[max(0.5rem,env(safe-area-inset-bottom))]",
+          dragOver && "ring-2 ring-inset ring-[#1a73e8]/30"
+        )}
+        onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragOver(false);
+          if (e.dataTransfer.files?.length) addFiles(e.dataTransfer.files);
+        }}
+      >
+        {files.length > 0 && (
+          <div className="mb-2 flex flex-wrap gap-2">
+            {files.map((f, i) => (
+              <span key={`${f.name}-${i}`} className="inline-flex max-w-full items-center gap-1.5 rounded-full border border-[#dadce0] bg-white px-2.5 py-1 text-xs text-[#3c4043]">
+                <Paperclip className="h-3 w-3 shrink-0" />
+                <span className="max-w-[min(40vw,140px)] truncate">{f.name}</span>
+                <button type="button" aria-label={t("common.close")} onClick={() => setFiles((p) => p.filter((_, idx) => idx !== i))}>
+                  <X className="h-3 w-3" />
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+
+        {emojiOpen && (
+          <div className="mb-2 grid max-h-28 grid-cols-8 gap-0.5 overflow-y-auto rounded-2xl border border-[#dadce0] bg-white p-1.5 shadow-lg">
+            {SUPPORT_EMOJI.map((e) => (
+              <button
+                key={e}
+                type="button"
+                className="rounded-lg p-1 text-lg hover:bg-[#f1f3f4]"
+                onClick={() => {
+                  setText((v) => v + e);
+                  taRef.current?.focus();
+                }}
+              >
+                {e}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div className="flex items-end gap-2">
+          <div className="relative min-w-0 flex-1">
+            <textarea
+              ref={taRef}
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              rows={1}
+              enterKeyHint="send"
+              autoComplete="off"
+              autoCorrect="on"
+              placeholder={placeholder ?? t("support.typeMessagePlaceholder")}
+              className="support-live-input max-h-[96px] min-h-[44px] w-full resize-none rounded-full border bg-white py-2.5 pl-4 pr-11 text-base leading-5 text-[#202124] outline-none placeholder:text-[#9aa0a6] focus:ring-2 focus:ring-[#1a73e8]/20"
+              onFocus={() => {
+                scrollMobileThreadToBottom();
+                window.setTimeout(scrollMobileThreadToBottom, 120);
+                window.setTimeout(scrollMobileThreadToBottom, 320);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  void submit();
+                }
+              }}
+              disabled={disabled || sending}
+            />
+            <button
+              type="button"
+              className={cn(
+                "absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-[#9aa0a6] hover:bg-[#f1f3f4] hover:text-[#5f6368]",
+                emojiOpen && "bg-[#f1f3f4] text-[#1a73e8]"
+              )}
+              aria-label={t("support.emoji")}
+              onClick={() => setEmojiOpen((v) => !v)}
+            >
+              <Smile className="h-5 w-5" />
+            </button>
+          </div>
+
+          <input
+            ref={fileRef}
+            type="file"
+            className="hidden"
+            multiple
+            accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
+            onChange={(e) => {
+              if (e.target.files) addFiles(e.target.files);
+              e.target.value = "";
+            }}
+          />
+
+          {canSend ? (
+            <button
+              type="button"
+              className="mb-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#1a73e8] text-white shadow-sm disabled:opacity-50"
+              onClick={() => void submit()}
+              disabled={disabled || sending}
+              aria-label={t("support.send")}
+            >
+              <Send className="h-4 w-4" />
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="mb-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[#9aa0a6] hover:bg-[#eceff1] hover:text-[#5f6368]"
+              aria-label={t("support.attach")}
+              onClick={() => fileRef.current?.click()}
+            >
+              <Paperclip className="h-5 w-5" />
+            </button>
+          )}
+        </div>
+
+        <p className="mt-1.5 text-center text-[10px] text-[#9aa0a6]">
+          {t("support.poweredBy", { brand: BRAND.name })}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -592,7 +823,6 @@ export function SupportComposer({
             autoComplete="off"
             autoCorrect="on"
             placeholder={placeholder ?? t("support.messagePlaceholder")}
-            /* text-base (16px) prevents iOS Safari zoom-on-focus */
             className="max-h-[100px] min-h-[40px] w-full resize-none rounded-[20px] border border-border/80 bg-surface-elevated px-3.5 py-2.5 text-base leading-5 text-foreground outline-none placeholder:text-muted focus:border-emerald/35 focus:ring-1 focus:ring-emerald/20"
             onFocus={() => {
               scrollMobileThreadToBottom();
@@ -636,6 +866,7 @@ export function SupportThreadFrame({
   composer,
   className,
   safeAreaTop,
+  variant = "default",
 }: {
   title: string;
   subtitle?: string;
@@ -646,38 +877,89 @@ export function SupportThreadFrame({
   className?: string;
   /** Apply notch safe-area on the header (mobile overlay). */
   safeAreaTop?: boolean;
+  variant?: SupportChatVariant;
 }) {
   const { t } = useTranslation();
+  const live = variant === "live";
+
   return (
-    <div className={cn("flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-background", className)}>
-      <header
+    <SupportVariantContext.Provider value={variant}>
+      <div
         className={cn(
-          "flex shrink-0 items-center gap-1.5 border-b border-border bg-surface-elevated/95 px-1.5 py-2 backdrop-blur-xl sm:gap-2 sm:px-3 sm:py-2.5",
-          safeAreaTop && "pt-[max(0.5rem,env(safe-area-inset-top))]"
+          "flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-background",
+          live && "support-live bg-white",
+          className
         )}
       >
-        {onBack && (
-          <button
-            type="button"
-            onClick={onBack}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-emerald hover:bg-secondary"
-            aria-label={t("support.back")}
-          >
-            <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
-          </button>
-        )}
-        <div className="min-w-0 flex-1 px-1 text-left">
-          <p className="truncate font-display text-[15px] font-semibold leading-tight tracking-tight text-foreground sm:text-base">{title}</p>
-          {subtitle && <p className="truncate text-[11px] leading-tight text-muted">{subtitle}</p>}
-        </div>
-        <div className="flex min-h-11 max-w-[48%] shrink-0 items-center justify-end gap-1 overflow-visible">
-          {trailing}
-        </div>
-      </header>
-      <div className="support-thread-wallpaper flex min-h-0 flex-1 flex-col overflow-hidden">{children}</div>
-      {composer}
-    </div>
+        <header
+          className={cn(
+            "flex shrink-0 items-center gap-1.5 border-b border-border bg-surface-elevated/95 px-1.5 py-2 backdrop-blur-xl sm:gap-2 sm:px-3 sm:py-2.5",
+            live && "support-live-header border-none px-3 py-3 sm:px-4",
+            safeAreaTop && "pt-[max(0.5rem,env(safe-area-inset-top))]"
+          )}
+        >
+          {live ? (
+            <>
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/95 text-[#5f6368] shadow-sm">
+                <LogoIcon className="h-5 w-5" />
+              </span>
+              <div className="min-w-0 flex-1 px-2 text-left">
+                <p className="truncate text-[16px] font-semibold leading-tight text-white">
+                  {title || t("support.liveTitle")}
+                </p>
+                <p className="mt-0.5 flex items-center gap-1.5 truncate text-[12px] leading-tight text-white/85">
+                  <span className="inline-block h-2 w-2 rounded-full bg-[#34a853]" aria-hidden />
+                  {subtitle || t("support.liveSubtitle")}
+                </p>
+              </div>
+              <div className="flex shrink-0 items-center gap-0.5 text-white/95">
+                {trailing}
+                <button
+                  type="button"
+                  className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/10"
+                  aria-label={t("nav.more")}
+                >
+                  <MoreHorizontal className="h-5 w-5" />
+                </button>
+                {onBack && (
+                  <button
+                    type="button"
+                    onClick={onBack}
+                    className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/10"
+                    aria-label={t("support.back")}
+                  >
+                    <ChevronDown className="h-5 w-5" />
+                  </button>
+                )}
+              </div>
+            </>
+          ) : (
+            <>
+              {onBack && (
+                <button
+                  type="button"
+                  onClick={onBack}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-emerald hover:bg-secondary"
+                  aria-label={t("support.back")}
+                >
+                  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M15 18l-6-6 6-6" />
+                  </svg>
+                </button>
+              )}
+              <div className="min-w-0 flex-1 px-1 text-left">
+                <p className="truncate font-display text-[15px] font-semibold leading-tight tracking-tight text-foreground sm:text-base">{title}</p>
+                {subtitle && <p className="truncate text-[11px] leading-tight text-muted">{subtitle}</p>}
+              </div>
+              <div className="flex min-h-11 max-w-[48%] shrink-0 items-center justify-end gap-1 overflow-visible">
+                {trailing}
+              </div>
+            </>
+          )}
+        </header>
+        <div className="support-thread-wallpaper flex min-h-0 flex-1 flex-col overflow-hidden">{children}</div>
+        {composer}
+      </div>
+    </SupportVariantContext.Provider>
   );
 }

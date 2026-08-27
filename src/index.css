@@ -817,6 +817,47 @@
     #f8fafc;
 }
 
+/* Live-chat widget (Smartsupp-style) */
+.support-live {
+  --support-live: #1a73e8;
+  --support-live-soft: #e8f1fc;
+  --support-live-agent: #f1f3f5;
+  --support-live-muted: #9aa0a6;
+  --support-live-footer: #f7f8fa;
+}
+
+.support-live .support-thread-wallpaper {
+  background: #ffffff;
+}
+
+.support-live-header {
+  background: var(--support-live);
+  color: #fff;
+}
+
+.support-live-user-bubble {
+  background: linear-gradient(90deg, #1a73e8 0%, #3b8aef 100%);
+  color: #fff;
+}
+
+.support-live-agent-bubble {
+  background: var(--support-live-agent);
+  color: #202124;
+}
+
+.support-live-day-chip {
+  background: #5f6368;
+  color: #fff;
+}
+
+.support-live-composer {
+  background: var(--support-live-footer);
+}
+
+.support-live-input {
+  border-color: var(--support-live);
+}
+
 html.support-chat-open,
 html.support-chat-open body {
   overflow: hidden;
