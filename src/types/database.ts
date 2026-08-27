@@ -368,6 +368,7 @@ export interface Database {
           user_id: string;
           trader_name: string;
           allocation: number;
+          profit_earned: number;
           status: string;
           created_at: string;
         };
@@ -376,6 +377,7 @@ export interface Database {
           user_id: string;
           trader_name: string;
           allocation: number;
+          profit_earned?: number;
           status?: string;
           created_at?: string;
         };
@@ -384,6 +386,7 @@ export interface Database {
           user_id?: string;
           trader_name?: string;
           allocation?: number;
+          profit_earned?: number;
           status?: string;
           created_at?: string;
         };
