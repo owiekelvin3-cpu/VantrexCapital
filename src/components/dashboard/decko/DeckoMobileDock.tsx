@@ -106,11 +106,7 @@ export function DeckoMobileDock({
               const inner = (
                 <>
                   {!featured && active && (
-                    <motion.span
-                      layoutId="decko-dock-active"
-                      className="absolute inset-0 rounded-[18px] bg-[var(--decko-accent)]/18"
-                      transition={{ type: "spring", stiffness: 420, damping: 34 }}
-                    />
+                    <span className="absolute inset-0 rounded-[18px] bg-[var(--decko-accent)]/18" />
                   )}
                   <span
                     className={cn(

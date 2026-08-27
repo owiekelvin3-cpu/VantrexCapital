@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useCallback, useState } from "react";
+import { useCallback, useState, type FormEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { BRAND } from "@/constants/brand";
 import { cn } from "@/lib/utils";
@@ -96,7 +96,7 @@ export function DeckoSidebar({ mobileOpen = false, onClose }: DeckoSidebarProps)
   const settingsActive = pathname === "/dashboard/settings";
 
   const handleSearch = useCallback(
-    (e: React.FormEvent) => {
+    (e: FormEvent) => {
       e.preventDefault();
       const q = searchQuery.trim().toLowerCase();
       if (!q) return;
@@ -269,7 +269,7 @@ export function DeckoMobileTopBar({
   notificationSlot,
 }: {
   onMenuOpen: () => void;
-  notificationSlot?: React.ReactNode;
+  notificationSlot?: ReactNode;
 }) {
   const { t } = useTranslation();
   const { profile } = useAuth();
@@ -277,7 +277,7 @@ export function DeckoMobileTopBar({
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearch = useCallback(
-    (e: React.FormEvent) => {
+    (e: FormEvent) => {
       e.preventDefault();
       const q = searchQuery.trim().toLowerCase();
       if (!q) return;
