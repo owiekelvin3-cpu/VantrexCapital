@@ -1,6 +1,6 @@
 export const de = {
   common: {
-    brand: "VELION MARKETS",
+    brand: "Vantrex Capital",
     signIn: "Anmelden",
     signOut: "Abmelden",
     openAccount: "Konto eröffnen",

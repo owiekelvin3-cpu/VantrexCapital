@@ -1,6 +1,6 @@
 export type Theme = "dark" | "light";
 
-export const THEME_STORAGE_KEY = "velion-theme";
+export const THEME_STORAGE_KEY = "vantrex-theme";
 
 export function getStoredTheme(): Theme {
   try {

@@ -1,4 +1,4 @@
-/** Demo broker hub data — Velion-first, TradingView brokers layout. */
+/** Demo broker hub data — Vantrex-first, TradingView brokers layout. */
 
 export type BrokerAssetFilter = "all" | "crypto" | "forex" | "stocks" | "futures" | "cfds";
 
@@ -27,8 +27,8 @@ export const BROKER_FILTERS: { id: BrokerAssetFilter; labelKey: string }[] = [
 ];
 
 export const VELION_BROKER: BrokerCard = {
-  id: "velion",
-  name: "VELION MARKETS",
+  id: "vantrex",
+  name: "Vantrex Capital",
   tier: "platinum",
   badge: "Featured",
   assets: ["crypto", "forex", "stocks", "futures", "cfds"],
@@ -41,11 +41,11 @@ export const VELION_BROKER: BrokerCard = {
   description: "Trade crypto, FX, indices, and metals with AI strategies, live charts, and segregated client funds.",
 };
 
-/** Supporting product “cards” that showcase Velion offerings in the same layout. */
+/** Supporting product cards that showcase Vantrex offerings in the same layout. */
 export const VELION_OFFERINGS: BrokerCard[] = [
   {
-    id: "velion-crypto",
-    name: "Velion Crypto",
+    id: "vantrex-crypto",
+    name: "Vantrex Crypto",
     tier: "platinum",
     assets: ["crypto"],
     rating: 4.8,
@@ -56,8 +56,8 @@ export const VELION_OFFERINGS: BrokerCard[] = [
     description: "BTC, ETH, majors and alts with live pricing and one-click orders.",
   },
   {
-    id: "velion-forex",
-    name: "Velion Forex",
+    id: "vantrex-forex",
+    name: "Vantrex Forex",
     tier: "platinum",
     assets: ["forex", "cfds"],
     rating: 4.7,
@@ -68,8 +68,8 @@ export const VELION_OFFERINGS: BrokerCard[] = [
     description: "Major and cross pairs with professional chart workspace.",
   },
   {
-    id: "velion-equities",
-    name: "Velion Equities",
+    id: "vantrex-equities",
+    name: "Vantrex Equities",
     tier: "gold",
     assets: ["stocks", "futures"],
     rating: 4.6,

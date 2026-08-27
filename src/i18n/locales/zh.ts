@@ -1,6 +1,6 @@
 export const zh = {
   common: {
-    brand: "VELION MARKETS",
+    brand: "Vantrex Capital",
     signIn: "登录",
     signOut: "退出登录",
     openAccount: "开户",

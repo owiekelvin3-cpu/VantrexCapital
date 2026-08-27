@@ -18,7 +18,7 @@ export const RECOMMENDED_BOT_ID = "nexus";
 export const AI_BOTS: AIBot[] = [
   {
     id: "nexus",
-    name: "Velion Core",
+    name: "Vantrex Core",
     description: "Conservative execution model focused on capital preservation and steady hourly accrual across major crypto pairs.",
     simpleDescription: "Best for beginners — steady automated crypto trading.",
     beginnerFriendly: true,
@@ -32,7 +32,7 @@ export const AI_BOTS: AIBot[] = [
   },
   {
     id: "quantum",
-    name: "Velion Momentum",
+    name: "Vantrex Momentum",
     description: "Balanced cross-market engine that rotates exposure across liquid assets.",
     simpleDescription: "Balanced bot for active market conditions.",
     winRate: 100,
@@ -45,7 +45,7 @@ export const AI_BOTS: AIBot[] = [
   },
   {
     id: "apex",
-    name: "Velion Alpha",
+    name: "Vantrex Alpha",
     description: "High-conviction momentum system for larger allocations.",
     simpleDescription: "Advanced bot for larger allocations.",
     winRate: 100,

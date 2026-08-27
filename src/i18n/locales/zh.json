@@ -148,9 +148,9 @@
   "product": {
     "eyebrow": "平台",
     "title": "专为严肃的市场工作而打造",
-    "subtitle": "从人工智能策略到实时执行和策划信号——每一种工具都位于一个 Velion 工作区中。",
+    "subtitle": "从人工智能策略到实时执行和策划信号——每一种工具都位于一个 Vantrex 工作区中。",
     "aiTitle": "人工智能交易策略",
-    "aiDesc": "将资金分配给 Velion Core、Momentum 或 Alpha。观看实时利润的累积，并在您想要更多时运行可选的快速交易。",
+    "aiDesc": "将资金分配给 Vantrex Core、Momentum 或 Alpha。观看实时利润的累积，并在您想要更多时运行可选的快速交易。",
     "aiCta": "开始人工智能交易",
     "roomTitle": "现场交易室",
     "roomDesc": "使用专为重点会话设计的专业图表布局、头寸面板和账户上下文下订单。",
@@ -207,10 +207,10 @@
     "productsSub": "研究、决策和交易所需的一切尽在一个账户中。",
     "exploreCharts": "开放交易室",
     "aiTrading": "人工智能交易",
-    "aiTradingDesc": "将资金分配给 Velion 策略并自动观察实时利润的累积。",
+    "aiTradingDesc": "将资金分配给 Vantrex 策略并自动观察实时利润的累积。",
     "tradingRoomDesc": "专业图表工作区，包含实时报价、订单单和仓位。",
     "tagPopular": "Popular",
-    "whyTitle": "Why professionals choose Velion",
+    "whyTitle": "Why professionals choose Vantrex",
     "whySub": "We combine research, execution, and custody in one account — so you spend less time switching tools and more time making decisions.",
     "why1Title": "One workspace",
     "why1Desc": "Markets, charts, AI strategies, signals, and withdrawals live in a single client portal.",
@@ -712,7 +712,7 @@
       "destination": "目的地",
       "notes": "笔记",
       "reference": "参考编号",
-      "footer": "这是您在 VELION MARKETS 上的正式交易记录。",
+      "footer": "这是您在 Vantrex Capital 上的正式交易记录。",
       "viewHint": "点击交易即可查看收据"
     }
   },
@@ -1673,7 +1673,7 @@
   "communityPulse": {
     "eyebrow": "社区",
     "title": "全球市场汇聚之地",
-    "subtitle": "加入交易者与投资者——研究图表、分享观点，并在统一的 Velion 工作区根据实时市场背景采取行动。",
+    "subtitle": "加入交易者与投资者——研究图表、分享观点，并在统一的 Vantrex 工作区根据实时市场背景采取行动。",
     "cta": "免费开始",
     "explore": "探索市场",
     "trendsTitle": "社区趋势",
@@ -1718,7 +1718,7 @@
     "title": "Support",
     "subtitle": "Message our team anytime — we reply in real time.",
     "emptyTitle": "No conversations yet",
-    "emptyDesc": "Start a chat with Velion support. Ask about deposits, withdrawals, trading, or your account.",
+    "emptyDesc": "Start a chat with Vantrex support. Ask about deposits, withdrawals, trading, or your account.",
     "startConversation": "Start a conversation",
     "startHint": "Tell us briefly what you need help with.",
     "newConversation": "New chat",
@@ -1764,7 +1764,7 @@
     }
   },
   "pwa": {
-    "installTitle": "Install VELION app",
+    "installTitle": "Install Vantrex app",
     "installDesc": "Open faster from your home screen — works like a native app.",
     "install": "Install"
   },

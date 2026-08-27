@@ -149,9 +149,9 @@
   "product": {
     "eyebrow": "Platform",
     "title": "Built for serious market work",
-    "subtitle": "From AI strategies to live execution and curated signals — every tool stays in one Velion workspace.",
+    "subtitle": "From AI strategies to live execution and curated signals — every tool stays in one Vantrex workspace.",
     "aiTitle": "AI Trading strategies",
-    "aiDesc": "Allocate capital to Velion Core, Momentum, or Alpha. Watch live profit accrue and run optional quick trades when you want more.",
+    "aiDesc": "Allocate capital to Vantrex Core, Momentum, or Alpha. Watch live profit accrue and run optional quick trades when you want more.",
     "aiCta": "Start AI Trading",
     "roomTitle": "Live Trading Room",
     "roomDesc": "Place orders with a professional chart layout, positions panel, and account context designed for focused sessions.",
@@ -181,7 +181,7 @@
   "communityPulse": {
     "eyebrow": "Community",
     "title": "Where the world does markets",
-    "subtitle": "Join traders and investors researching charts, sharing ideas, and acting on live market context — all in one Velion workspace.",
+    "subtitle": "Join traders and investors researching charts, sharing ideas, and acting on live market context — all in one Vantrex workspace.",
     "cta": "Get started for free",
     "explore": "Explore markets",
     "trendsTitle": "Community trends",
@@ -243,10 +243,10 @@
     "productsSub": "Everything you need to research, decide, and trade — in one account.",
     "exploreCharts": "Open trading room",
     "aiTrading": "AI Trading",
-    "aiTradingDesc": "Allocate capital to Velion strategies and watch live profit accrue automatically.",
+    "aiTradingDesc": "Allocate capital to Vantrex strategies and watch live profit accrue automatically.",
     "tradingRoomDesc": "Professional chart workspace with live quotes, order tickets, and positions.",
     "tagPopular": "Popular",
-    "whyTitle": "Why professionals choose Velion",
+    "whyTitle": "Why professionals choose Vantrex",
     "whySub": "We combine research, execution, and custody in one account — so you spend less time switching tools and more time making decisions.",
     "why1Title": "One workspace",
     "why1Desc": "Markets, charts, AI strategies, signals, and withdrawals live in a single client portal.",
@@ -947,7 +947,7 @@
     "title": "Support",
     "subtitle": "Message our team anytime — we reply in real time.",
     "emptyTitle": "No conversations yet",
-    "emptyDesc": "Start a chat with Velion support. Ask about deposits, withdrawals, trading, or your account.",
+    "emptyDesc": "Start a chat with Vantrex support. Ask about deposits, withdrawals, trading, or your account.",
     "startConversation": "Start a conversation",
     "startHint": "Tell us briefly what you need help with.",
     "newConversation": "New chat",
@@ -1123,7 +1123,7 @@
       "destination": "Destination",
       "notes": "Notes",
       "reference": "Reference ID",
-      "footer": "This is your official transaction record on VELION MARKETS.",
+      "footer": "This is your official transaction record on Vantrex Capital.",
       "viewHint": "Tap a transaction to view receipt"
     }
   },
@@ -1944,7 +1944,7 @@
     "aboutSubtitle": "A regulated wealth management platform built on institutional governance, transparent reporting, and verified custody.",
     "reviewsBadge": "Community",
     "reviewsTitle": "Where traders share ideas",
-    "reviewsSubtitle": "Follow community trends, desk ideas, and reviews from investors building on Velion — with clear rules and verified context.",
+    "reviewsSubtitle": "Follow community trends, desk ideas, and reviews from investors building on Vantrex — with clear rules and verified context.",
     "communityLiveTitle": "Markets, crypto & finance news",
     "communityLiveSubtitle": "Live headlines from Cointelegraph, Decrypt, BBC Business, CNBC, and Yahoo Finance — plus trending coins from CoinGecko. Research first, then trade.",
     "ideasTitle": "Community ideas",
@@ -2326,7 +2326,7 @@
     "reload": "Reload Page"
   },
   "pwa": {
-    "installTitle": "Install VELION app",
+    "installTitle": "Install Vantrex app",
     "installDesc": "Open faster from your home screen — works like a native app.",
     "install": "Install"
   }

@@ -94,21 +94,16 @@ export function AdminUserDetailPanel({ userId, onClose, onUpdated, onDeleted }: 
     try {
       const details = await fetchAdminUserDetails(userId);
       setData(details);
+      onUpdated?.();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load user");
-      if (!silent) setData(null);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [userId]);
+  }, [userId, onUpdated]);
 
-  useEffect(() => {
-    setData(null);
-    setError("");
-    setMessage("");
-    void load();
-  }, [load]);
+  useEffect(() => { void load(); }, [load]);
 
   useEffect(() => {
     setDeleteConfirming(false);
@@ -133,11 +128,9 @@ export function AdminUserDetailPanel({ userId, onClose, onUpdated, onDeleted }: 
   const profile = data?.profile;
   const auth = data?.auth;
   const stats = data?.stats;
-  const fees = Array.isArray(data?.fees) ? data.fees : [];
-  const balanceAdjustments = Array.isArray(data?.balance_adjustments) ? data.balance_adjustments : [];
-  const moderationActions = Array.isArray(data?.moderation_actions) ? data.moderation_actions : [];
-  const recentDeposits = Array.isArray(data?.recent_deposits) ? data.recent_deposits : [];
-  const kycSubmissions = Array.isArray(data?.kyc_submissions) ? data.kyc_submissions : [];
+  const fees = data?.fees ?? [];
+  const balanceAdjustments = data?.balance_adjustments ?? [];
+  const moderationActions = data?.moderation_actions ?? [];
   const outstandingTotal = Number(data?.outstanding_fees_total ?? 0);
   const locationReady = profile ? hasLocationData(profile) : false;
   const displayLocation = profile?.last_known_location
@@ -392,7 +385,7 @@ export function AdminUserDetailPanel({ userId, onClose, onUpdated, onDeleted }: 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-lg bg-secondary/80 p-3">
                     <p className="text-xs text-muted">{t("admin.userDetail.balance")}</p>
-                    <p className="mt-1 font-display text-lg font-bold text-emerald">{formatCurrency(Number(data.balance ?? 0))}</p>
+                    <p className="mt-1 font-display text-lg font-bold text-emerald">{formatCurrency(data.balance)}</p>
                   </div>
                   <div className="rounded-lg bg-secondary/80 p-3">
                     <p className="text-xs text-muted">{t("admin.userDetail.outstandingFees")}</p>
@@ -929,8 +922,8 @@ export function AdminUserDetailPanel({ userId, onClose, onUpdated, onDeleted }: 
                 </h3>
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   {[
-                    { label: t("admin.userDetail.deposits"), value: `${stats?.deposits_count ?? 0} · ${formatCurrency(Number(stats?.deposits_total ?? 0))}` },
-                    { label: t("admin.userDetail.withdrawals"), value: `${stats?.withdrawals_count ?? 0} · ${formatCurrency(Number(stats?.withdrawals_total ?? 0))}` },
+                    { label: t("admin.userDetail.deposits"), value: `${stats?.deposits_count ?? 0} · ${formatCurrency(stats?.deposits_total ?? 0)}` },
+                    { label: t("admin.userDetail.withdrawals"), value: `${stats?.withdrawals_count ?? 0} · ${formatCurrency(stats?.withdrawals_total ?? 0)}` },
                     { label: t("admin.userDetail.trades"), value: String(stats?.trades_count ?? 0) },
                     { label: t("admin.userDetail.activeTrades"), value: String(stats?.active_trades ?? 0) },
                     { label: t("admin.userDetail.aiBots"), value: String(stats?.ai_bots_active ?? 0) },
@@ -943,15 +936,15 @@ export function AdminUserDetailPanel({ userId, onClose, onUpdated, onDeleted }: 
                 </div>
               </section>
 
-              {recentDeposits.length > 0 && (
+              {data.recent_deposits.length > 0 && (
                 <section className="rounded-xl border border-border bg-secondary/50 p-4">
                   <h3 className="mb-3 font-display text-sm font-semibold">{t("admin.userDetail.recentDeposits")}</h3>
                   <div className="space-y-2">
-                    {recentDeposits.map((d) => (
+                    {data.recent_deposits.map((d) => (
                       <div key={d.id} className="flex items-center justify-between gap-3 rounded-lg bg-secondary/80 px-3 py-2 text-sm">
                         <span className="min-w-0 truncate text-muted">{d.method} · {formatDate(d.created_at)}</span>
                         <div className="flex shrink-0 items-center gap-2">
-                          <span className="font-medium">{formatCurrency(Number(d.amount))}</span>
+                          <span className="font-medium">{formatCurrency(d.amount)}</span>
                           <Badge variant={d.status === "completed" ? "success" : "secondary"} className="text-[10px]">{d.status}</Badge>
                         </div>
                       </div>
@@ -960,11 +953,11 @@ export function AdminUserDetailPanel({ userId, onClose, onUpdated, onDeleted }: 
                 </section>
               )}
 
-              {kycSubmissions.length > 0 && (
+              {data.kyc_submissions.length > 0 && (
                 <section className="rounded-xl border border-border bg-secondary/50 p-4">
                   <h3 className="mb-3 font-display text-sm font-semibold">{t("admin.userDetail.kycDocs")}</h3>
                   <div className="space-y-2">
-                    {kycSubmissions.map((k) => (
+                    {data.kyc_submissions.map((k) => (
                       <div key={k.id} className="flex items-center justify-between gap-3 rounded-lg bg-secondary/80 px-3 py-2 text-sm">
                         <span className="min-w-0 truncate">{k.document_type}{k.selfie_url ? " · face" : ""}</span>
                         <div className="flex shrink-0 items-center gap-2">

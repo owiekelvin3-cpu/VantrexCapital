@@ -1,6 +1,6 @@
 export const ar = {
   common: {
-    brand: "VELION MARKETS",
+    brand: "Vantrex Capital",
     signIn: "تسجيل الدخول",
     signOut: "تسجيل الخروج",
     openAccount: "فتح حساب",

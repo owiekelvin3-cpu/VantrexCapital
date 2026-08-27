@@ -29,25 +29,19 @@ export default function AdminUsersPage() {
     setLoading(false);
   }, []);
 
-  const refreshUsersQuietly = useCallback(async () => {
-    const { data, error: err } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
-    if (err) setError(err.message);
-    else setUsers(data ?? []);
-  }, []);
-
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => { load(); }, [load]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return users;
     return users.filter((u) =>
-      (u.email?.toLowerCase().includes(q) ?? false)
-      || (u.full_name?.toLowerCase().includes(q) ?? false)
-      || (u.role?.includes(q) ?? false)
-      || (u.kyc_status?.includes(q) ?? false)
+      u.email.toLowerCase().includes(q)
+      || (u.full_name?.toLowerCase().includes(q))
+      || u.role.includes(q)
+      || u.kyc_status.includes(q)
       || (u.is_suspended && "suspended".includes(q))
-      || (u.country?.toLowerCase().includes(q) ?? false)
-      || (u.city?.toLowerCase().includes(q) ?? false)
+      || (u.country?.toLowerCase().includes(q))
+      || (u.city?.toLowerCase().includes(q))
     );
   }, [users, search]);
 
@@ -167,7 +161,7 @@ export default function AdminUsersPage() {
       <AdminUserDetailPanel
         userId={selectedUserId}
         onClose={() => setSelectedUserId(null)}
-        onUpdated={() => { void refreshUsersQuietly(); }}
+        onUpdated={load}
         onDeleted={() => {
           setSelectedUserId(null);
           void load();

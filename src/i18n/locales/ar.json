@@ -148,9 +148,9 @@
   "product": {
     "eyebrow": "منصة",
     "title": "مصممة للعمل الجاد في السوق",
-    "subtitle": "بدءًا من استراتيجيات الذكاء الاصطناعي ووصولاً إلى التنفيذ المباشر والإشارات المنسقة - تبقى كل أداة في مساحة عمل Velion واحدة.",
+    "subtitle": "بدءًا من استراتيجيات الذكاء الاصطناعي ووصولاً إلى التنفيذ المباشر والإشارات المنسقة - تبقى كل أداة في مساحة عمل Vantrex واحدة.",
     "aiTitle": "استراتيجيات التداول بالذكاء الاصطناعي",
-    "aiDesc": "قم بتخصيص رأس المال لـ Velion Core أو Momentum أو Alpha. شاهد تراكم الأرباح المباشرة وقم بإجراء عمليات تداول سريعة اختيارية عندما تريد المزيد.",
+    "aiDesc": "قم بتخصيص رأس المال لـ Vantrex Core أو Momentum أو Alpha. شاهد تراكم الأرباح المباشرة وقم بإجراء عمليات تداول سريعة اختيارية عندما تريد المزيد.",
     "aiCta": "ابدأ التداول بالذكاء الاصطناعي",
     "roomTitle": "غرفة التداول المباشر",
     "roomDesc": "قم بتقديم الطلبات باستخدام تخطيط رسم بياني احترافي، ولوحة المواضع، وسياق الحساب المصمم للجلسات المركزة.",
@@ -207,10 +207,10 @@
     "productsSub": "كل ما تحتاجه للبحث واتخاذ القرار والتداول - في حساب واحد.",
     "exploreCharts": "فتح غرفة التداول",
     "aiTrading": "تجارة الذكاء الاصطناعي",
-    "aiTradingDesc": "قم بتخصيص رأس المال لاستراتيجيات Velion وشاهد الأرباح المباشرة تتراكم تلقائيًا.",
+    "aiTradingDesc": "قم بتخصيص رأس المال لاستراتيجيات Vantrex وشاهد الأرباح المباشرة تتراكم تلقائيًا.",
     "tradingRoomDesc": "مساحة عمل رسم بياني احترافي مع عروض أسعار مباشرة وتذاكر الطلبات والمواقف.",
     "tagPopular": "Popular",
-    "whyTitle": "Why professionals choose Velion",
+    "whyTitle": "Why professionals choose Vantrex",
     "whySub": "We combine research, execution, and custody in one account — so you spend less time switching tools and more time making decisions.",
     "why1Title": "One workspace",
     "why1Desc": "Markets, charts, AI strategies, signals, and withdrawals live in a single client portal.",
@@ -712,7 +712,7 @@
       "destination": "وجهة",
       "notes": "ملحوظات",
       "reference": "معرف المرجع",
-      "footer": "هذا هو سجل المعاملات الرسمي الخاص بك في VELION MARKETS.",
+      "footer": "هذا هو سجل المعاملات الرسمي الخاص بك في Vantrex Capital.",
       "viewHint": "اضغط على المعاملة لعرض الإيصال"
     }
   },
@@ -1673,7 +1673,7 @@
   "communityPulse": {
     "eyebrow": "المجتمع",
     "title": "حيث يتحرك العالم في الأسواق",
-    "subtitle": "انضم إلى المتداولين والمستثمرين الذين يبحثون في الرسوم البيانية ويشاركون الأفكار ويتصرفون بسياق السوق المباشر — في مساحة Velion واحدةحدة.",
+    "subtitle": "انضم إلى المتداولين والمستثمرين الذين يبحثون في الرسوم البيانية ويشاركون الأفكار ويتصرفون بسياق السوق المباشر — في مساحة Vantrex واحدةحدة.",
     "cta": "ابدأ مجانًا",
     "explore": "استكشف الأسواق",
     "trendsTitle": "اتجاهات المجتمع",
@@ -1718,7 +1718,7 @@
     "title": "Support",
     "subtitle": "Message our team anytime — we reply in real time.",
     "emptyTitle": "No conversations yet",
-    "emptyDesc": "Start a chat with Velion support. Ask about deposits, withdrawals, trading, or your account.",
+    "emptyDesc": "Start a chat with Vantrex support. Ask about deposits, withdrawals, trading, or your account.",
     "startConversation": "Start a conversation",
     "startHint": "Tell us briefly what you need help with.",
     "newConversation": "New chat",
@@ -1764,7 +1764,7 @@
     }
   },
   "pwa": {
-    "installTitle": "Install VELION app",
+    "installTitle": "Install Vantrex app",
     "installDesc": "Open faster from your home screen — works like a native app.",
     "install": "Install"
   },

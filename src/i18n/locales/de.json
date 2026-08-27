@@ -148,9 +148,9 @@
   "product": {
     "eyebrow": "Plattform",
     "title": "Gebaut für ernsthafte Marktarbeit",
-    "subtitle": "Von KI-Strategien über Live-Ausführung bis hin zu kuratierten Signalen – jedes Tool bleibt in einem Velion-Arbeitsbereich.",
+    "subtitle": "Von KI-Strategien über Live-Ausführung bis hin zu kuratierten Signalen – jedes Tool bleibt in einem Vantrex-Arbeitsbereich.",
     "aiTitle": "KI-Handelsstrategien",
-    "aiDesc": "Weisen Sie Velion Core, Momentum oder Alpha Kapital zu. Beobachten Sie Live-Gewinne und führen Sie optionale Schnellgeschäfte durch, wenn Sie mehr wollen.",
+    "aiDesc": "Weisen Sie Vantrex Core, Momentum oder Alpha Kapital zu. Beobachten Sie Live-Gewinne und führen Sie optionale Schnellgeschäfte durch, wenn Sie mehr wollen.",
     "aiCta": "Starten Sie den KI-Handel",
     "roomTitle": "Live-Handelsraum",
     "roomDesc": "Platzieren Sie Orders mit einem professionellen Chart-Layout, einem Positionsfenster und einem Kontokontext, die für gezielte Sitzungen konzipiert sind.",
@@ -207,10 +207,10 @@
     "productsSub": "Alles, was Sie zum Recherchieren, Entscheiden und Handeln benötigen – in einem Konto.",
     "exploreCharts": "Offener Handelsraum",
     "aiTrading": "KI-Handel",
-    "aiTradingDesc": "Weisen Sie Velion-Strategien Kapital zu und beobachten Sie, wie automatisch Live-Gewinne anfallen.",
+    "aiTradingDesc": "Weisen Sie Vantrex-Strategien Kapital zu und beobachten Sie, wie automatisch Live-Gewinne anfallen.",
     "tradingRoomDesc": "Professioneller Chart-Arbeitsbereich mit Live-Kursen, Ordertickets und Positionen.",
     "tagPopular": "Popular",
-    "whyTitle": "Why professionals choose Velion",
+    "whyTitle": "Why professionals choose Vantrex",
     "whySub": "We combine research, execution, and custody in one account — so you spend less time switching tools and more time making decisions.",
     "why1Title": "One workspace",
     "why1Desc": "Markets, charts, AI strategies, signals, and withdrawals live in a single client portal.",
@@ -712,7 +712,7 @@
       "destination": "Ziel",
       "notes": "Notizen",
       "reference": "Referenz-ID",
-      "footer": "Dies ist Ihr offizieller Transaktionsdatensatz auf VELION MARKETS.",
+      "footer": "Dies ist Ihr offizieller Transaktionsdatensatz auf Vantrex Capital.",
       "viewHint": "Tippen Sie auf eine Transaktion, um den Beleg anzuzeigen"
     }
   },
@@ -1673,7 +1673,7 @@
   "communityPulse": {
     "eyebrow": "Community",
     "title": "Wo die Welt die Märkte bewegt",
-    "subtitle": "Schließen Sie sich Tradern und Investoren an, die Charts recherchieren, Ideen teilen und mit Live-Marktkontext handeln — in einem Velion-Workspace.",
+    "subtitle": "Schließen Sie sich Tradern und Investoren an, die Charts recherchieren, Ideen teilen und mit Live-Marktkontext handeln — in einem Vantrex-Workspace.",
     "cta": "Kostenlos starten",
     "explore": "Märkte entdecken",
     "trendsTitle": "Community-Trends",
@@ -1718,7 +1718,7 @@
     "title": "Support",
     "subtitle": "Message our team anytime — we reply in real time.",
     "emptyTitle": "No conversations yet",
-    "emptyDesc": "Start a chat with Velion support. Ask about deposits, withdrawals, trading, or your account.",
+    "emptyDesc": "Start a chat with Vantrex support. Ask about deposits, withdrawals, trading, or your account.",
     "startConversation": "Start a conversation",
     "startHint": "Tell us briefly what you need help with.",
     "newConversation": "New chat",
@@ -1764,7 +1764,7 @@
     }
   },
   "pwa": {
-    "installTitle": "Install VELION app",
+    "installTitle": "Install Vantrex app",
     "installDesc": "Open faster from your home screen — works like a native app.",
     "install": "Install"
   },

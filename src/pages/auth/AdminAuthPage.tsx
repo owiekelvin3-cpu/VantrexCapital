@@ -127,7 +127,7 @@ export default function AdminAuthPage() {
                 autoComplete="email"
                 required
                 className="mt-2 h-12"
-                placeholder="admin@velionmarkets.com"
+                placeholder="admin@vantrexcapital.com"
               />
             </div>
             <div>

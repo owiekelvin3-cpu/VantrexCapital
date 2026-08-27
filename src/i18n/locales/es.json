@@ -148,9 +148,9 @@
   "product": {
     "eyebrow": "Plataforma",
     "title": "Creado para trabajos serios en el mercado",
-    "subtitle": "Desde estrategias de IA hasta ejecución en vivo y señales seleccionadas, cada herramienta permanece en un espacio de trabajo de Velion.",
+    "subtitle": "Desde estrategias de IA hasta ejecución en vivo y señales seleccionadas, cada herramienta permanece en un espacio de trabajo de Vantrex.",
     "aiTitle": "Estrategias comerciales de IA",
-    "aiDesc": "Asigne capital a Velion Core, Momentum o Alpha. Observe cómo se acumulan las ganancias en vivo y ejecute operaciones rápidas opcionales cuando desee más.",
+    "aiDesc": "Asigne capital a Vantrex Core, Momentum o Alpha. Observe cómo se acumulan las ganancias en vivo y ejecute operaciones rápidas opcionales cuando desee más.",
     "aiCta": "Comience a operar con IA",
     "roomTitle": "Sala de operaciones en vivo",
     "roomDesc": "Realice pedidos con un diseño de gráfico profesional, un panel de posiciones y un contexto de cuenta diseñados para sesiones enfocadas.",
@@ -207,10 +207,10 @@
     "productsSub": "Todo lo que necesita para investigar, decidir y operar, en una sola cuenta.",
     "exploreCharts": "Sala de operaciones abierta",
     "aiTrading": "Comercio de IA",
-    "aiTradingDesc": "Asigne capital a las estrategias de Velion y observe cómo las ganancias en vivo se acumulan automáticamente.",
+    "aiTradingDesc": "Asigne capital a las estrategias de Vantrex y observe cómo las ganancias en vivo se acumulan automáticamente.",
     "tradingRoomDesc": "Espacio de trabajo de gráficos profesional con cotizaciones en vivo, tickets de pedidos y posiciones.",
     "tagPopular": "Popular",
-    "whyTitle": "Why professionals choose Velion",
+    "whyTitle": "Why professionals choose Vantrex",
     "whySub": "We combine research, execution, and custody in one account — so you spend less time switching tools and more time making decisions.",
     "why1Title": "One workspace",
     "why1Desc": "Markets, charts, AI strategies, signals, and withdrawals live in a single client portal.",
@@ -712,7 +712,7 @@
       "destination": "Destino",
       "notes": "Notas",
       "reference": "ID de referencia",
-      "footer": "Este es su registro oficial de transacciones en VELION MARKETS.",
+      "footer": "Este es su registro oficial de transacciones en Vantrex Capital.",
       "viewHint": "Toque una transacción para ver el recibo"
     }
   },
@@ -1673,7 +1673,7 @@
   "communityPulse": {
     "eyebrow": "Comunidad",
     "title": "Donde el mundo opera los mercados",
-    "subtitle": "Únete a traders e inversores que investigan gráficos, comparten ideas y actúan con contexto de mercado en vivo — en un solo espacio Velion.",
+    "subtitle": "Únete a traders e inversores que investigan gráficos, comparten ideas y actúan con contexto de mercado en vivo — en un solo espacio Vantrex.",
     "cta": "Empieza gratis",
     "explore": "Explorar mercados",
     "trendsTitle": "Tendencias de la comunidad",
@@ -1718,7 +1718,7 @@
     "title": "Support",
     "subtitle": "Message our team anytime — we reply in real time.",
     "emptyTitle": "No conversations yet",
-    "emptyDesc": "Start a chat with Velion support. Ask about deposits, withdrawals, trading, or your account.",
+    "emptyDesc": "Start a chat with Vantrex support. Ask about deposits, withdrawals, trading, or your account.",
     "startConversation": "Start a conversation",
     "startHint": "Tell us briefly what you need help with.",
     "newConversation": "New chat",
@@ -1764,7 +1764,7 @@
     }
   },
   "pwa": {
-    "installTitle": "Install VELION app",
+    "installTitle": "Install Vantrex app",
     "installDesc": "Open faster from your home screen — works like a native app.",
     "install": "Install"
   },

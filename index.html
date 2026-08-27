@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <script>
       (function () {
-        var t = localStorage.getItem("velion-theme");
+        var t = localStorage.getItem("vantrex-theme") || localStorage.getItem("velion-theme");
         var theme = t === "light" ? "light" : "dark";
         document.documentElement.classList.add(theme);
         var meta = document.querySelector('meta[name="theme-color"]');
@@ -15,18 +15,18 @@
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
-    <meta name="description" content="VELION MARKETS — Professional brokerage, wealth management, and trading for private and institutional investors." />
+    <meta name="description" content="Vantrex Capital — Professional brokerage, wealth management, and trading for private and institutional investors." />
     <meta name="theme-color" content="#09090B" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="VELION" />
-    <meta name="application-name" content="VELION MARKETS" />
-    <meta property="og:title" content="VELION MARKETS | Professional Brokerage & Wealth Management" />
+    <meta name="apple-mobile-web-app-title" content="Vantrex" />
+    <meta name="application-name" content="Vantrex Capital" />
+    <meta property="og:title" content="Vantrex Capital | Professional Brokerage & Wealth Management" />
     <meta property="og:description" content="Full-service securities brokerage with segregated custody, transparent reporting, and institutional-grade execution." />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://velionmarkets.com" />
-    <meta property="og:image" content="https://velionmarkets.com/icons/icon-512.png" />
+    <meta property="og:url" content="https://vantrexcapital.com" />
+    <meta property="og:image" content="https://vantrexcapital.com/icons/icon-512.png" />
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -42,7 +42,7 @@
     <noscript>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
     </noscript>
-    <title>VELION MARKETS | Professional Brokerage & Wealth Management</title>
+    <title>Vantrex Capital | Professional Brokerage & Wealth Management</title>
   </head>
   <body>
     <div id="root"></div>
