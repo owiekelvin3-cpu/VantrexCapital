@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { formatDate, cn } from "@/lib/utils";
+import { brandNotificationText } from "@/lib/notification-brand";
 import type { Notification } from "@/types/database";
 
 interface NotificationListProps {
@@ -58,8 +59,8 @@ export function NotificationList({
               aria-hidden="true"
             />
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-foreground">{n.title}</p>
-              <p className="mt-0.5 text-xs leading-relaxed text-muted line-clamp-3">{n.message}</p>
+              <p className="text-sm font-medium text-foreground">{brandNotificationText(n.title)}</p>
+              <p className="mt-0.5 text-xs leading-relaxed text-muted line-clamp-3">{brandNotificationText(n.message)}</p>
               <p className="mt-1.5 text-[10px] text-muted/80">{formatDate(n.created_at)}</p>
             </div>
           </button>

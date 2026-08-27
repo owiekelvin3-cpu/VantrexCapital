@@ -5,12 +5,21 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Bell, X } from "@/lib/icons";
 import { useAuth } from "@/hooks/useAuth";
 import { pathForNotification } from "@/lib/notification-routing";
+import { brandNotificationText } from "@/lib/notification-brand";
 import type { Notification } from "@/types/database";
 
-const EVENT_NAME = "velion:notification";
+const EVENT_NAME = "vantrex:notification";
 
 export function dispatchNotificationToast(notification: Notification) {
-  window.dispatchEvent(new CustomEvent<Notification>(EVENT_NAME, { detail: notification }));
+  window.dispatchEvent(
+    new CustomEvent<Notification>(EVENT_NAME, {
+      detail: {
+        ...notification,
+        title: brandNotificationText(notification.title),
+        message: brandNotificationText(notification.message),
+      },
+    })
+  );
 }
 
 /** Top banner alert for new notifications — tap to open the related page. */

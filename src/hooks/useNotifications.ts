@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { ensureValidSession } from "@/lib/auth-session";
 import { deliverNotification } from "@/lib/notification-delivery";
+import { brandNotificationText } from "@/lib/notification-brand";
 import type { Notification } from "@/types/database";
 
 interface UseNotificationsOptions {
@@ -15,6 +16,33 @@ interface UseNotificationsOptions {
 }
 
 const POLL_MS = 30_000;
+
+function rebrandNotification(row: Notification): Notification {
+  return {
+    ...row,
+    title: brandNotificationText(row.title),
+    message: brandNotificationText(row.message),
+  };
+}
+
+async function persistRebrand(rows: Notification[]) {
+  const stale = rows.filter(
+    (n) =>
+      /velion|valion|harborline/i.test(n.title) ||
+      /velion|valion|harborline/i.test(n.message)
+  );
+  await Promise.all(
+    stale.map((n) =>
+      supabase
+        .from("notifications")
+        .update({
+          title: brandNotificationText(n.title),
+          message: brandNotificationText(n.message),
+        })
+        .eq("id", n.id)
+    )
+  );
+}
 
 export function useNotifications(userId: string | undefined, options?: UseNotificationsOptions) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -35,7 +63,7 @@ export function useNotifications(userId: string | undefined, options?: UseNotifi
     if (knownIdsRef.current.has(notification.id)) return;
     knownIdsRef.current.add(notification.id);
     if (enableDeliveryRef.current) {
-      deliverNotification(notification, { url: pushTargetPathRef.current });
+      deliverNotification(rebrandNotification(notification), { url: pushTargetPathRef.current });
     }
   }, []);
 
@@ -54,7 +82,9 @@ export function useNotifications(userId: string | undefined, options?: UseNotifi
       .order("created_at", { ascending: false })
       .limit(50);
 
-    const rows = data ?? [];
+    const raw = (data ?? []) as Notification[];
+    void persistRebrand(raw);
+    const rows = raw.map(rebrandNotification);
 
     if (!initializedRef.current) {
       rows.forEach((n) => knownIdsRef.current.add(n.id));
@@ -82,8 +112,6 @@ export function useNotifications(userId: string | undefined, options?: UseNotifi
   useEffect(() => {
     if (!userId) return;
 
-    // Always use a unique topic. Reusing a name returns an already-subscribed
-    // channel; calling .on() afterward throws and crashes the ErrorBoundary.
     const topic = `notifications:${userId}:${enableDelivery ? "live" : "list"}:${crypto.randomUUID().slice(0, 8)}`;
     let channel: ReturnType<typeof supabase.channel> | null = null;
 
@@ -94,7 +122,9 @@ export function useNotifications(userId: string | undefined, options?: UseNotifi
           "postgres_changes",
           { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
           (payload) => {
-            const notification = payload.new as Notification;
+            const raw = payload.new as Notification;
+            void persistRebrand([raw]);
+            const notification = rebrandNotification(raw);
             setNotifications((prev) => {
               if (prev.some((n) => n.id === notification.id)) return prev;
               return [notification, ...prev];
