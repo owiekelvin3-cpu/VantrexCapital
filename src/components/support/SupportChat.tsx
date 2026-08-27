@@ -11,12 +11,11 @@ import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
-  FileText, ImageIcon, Paperclip, Send, Smile, X, MessageCircle, ChevronDown, MoreHorizontal,
+  FileText, ImageIcon, Paperclip, Send, Smile, X, MessageCircle,
 } from "@/lib/icons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { LogoIcon } from "@/components/brand/Logo";
-import { BRAND } from "@/constants/brand";
 import {
   getAttachmentUrl,
   SUPPORT_EMOJI,
@@ -263,27 +262,6 @@ function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
 }
 
-function formatRelativeTime(iso: string, t: (key: string, opts?: Record<string, unknown>) => string) {
-  const diffMs = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diffMs / 60_000);
-  if (mins < 1) return t("support.justNow");
-  if (mins === 1) return t("support.minuteAgo");
-  if (mins < 60) return t("support.minutesAgo", { count: mins });
-  const hours = Math.floor(mins / 60);
-  if (hours === 1) return t("support.hourAgo");
-  if (hours < 48) return t("support.hoursAgo", { count: hours });
-  const days = Math.floor(hours / 24);
-  if (days === 1) return t("support.dayAgo");
-  if (days < 7) return t("support.daysAgo", { count: days });
-  return new Date(iso).toLocaleString(undefined, {
-    month: "numeric",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
 function formatDayLabel(iso: string, t: (k: string) => string) {
   const d = new Date(iso);
   const today = new Date();
@@ -354,53 +332,44 @@ export function SupportMessageBubble({
     return (
       <motion.div
         layout
-        initial={{ opacity: 0, y: 6, scale: 0.98 }}
+        initial={{ opacity: 0, y: 4, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         className={cn(
-          "flex w-full items-end gap-2",
+          "flex w-full",
           isOwn ? "justify-end" : "justify-start",
-          clustered ? "mt-1" : "mt-3"
+          clustered ? "mt-0.5" : "mt-2"
         )}
       >
-        {!isOwn && (
-          <span
-            className={cn(
-              "mb-5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#e8eaed] text-[#5f6368]",
-              clustered && "invisible"
-            )}
-            aria-hidden={clustered}
-          >
-            <LogoIcon className="h-4 w-4" />
-          </span>
-        )}
-        <div className={cn("flex max-w-[78%] flex-col sm:max-w-[64%]", isOwn ? "items-end" : "items-start")}>
+        <div className={cn("flex max-w-[78%] flex-col sm:max-w-[62%]", isOwn ? "items-end" : "items-start")}>
           <div
             className={cn(
-              "px-3.5 py-2.5 text-[15px] leading-snug",
+              "px-3.5 py-2 text-[16px] leading-snug",
               isOwn
                 ? cn(
-                    "support-live-user-bubble shadow-sm",
-                    clustered ? "rounded-[18px] rounded-br-md" : "rounded-[18px] rounded-br-[6px]"
+                    "support-live-user-bubble",
+                    clustered ? "rounded-[18px] rounded-br-md" : "rounded-[18px] rounded-br-[5px]"
                   )
                 : cn(
                     "support-live-agent-bubble",
-                    clustered ? "rounded-[18px] rounded-bl-md" : "rounded-[18px] rounded-bl-[6px]"
+                    clustered ? "rounded-[18px] rounded-bl-md" : "rounded-[18px] rounded-bl-[5px]"
                   )
             )}
           >
             {message.body && <p className="whitespace-pre-wrap break-words">{message.body}</p>}
             {message.attachments?.map((att) => <AttachmentChip key={att.id} att={att} />)}
           </div>
-          <div
-            className={cn(
-              "mt-1 flex items-center gap-1.5 px-1 text-[11px] tabular-nums text-[#9aa0a6]",
-              isOwn && "justify-end"
-            )}
-          >
-            <span>{formatRelativeTime(message.created_at, t)}</span>
-            {message.failed && <span className="text-red-400">!</span>}
-            {message.pending && <span>…</span>}
-          </div>
+          {!clustered && (
+            <div
+              className={cn(
+                "mt-1 px-1 text-[11px] tabular-nums text-[#8e8e93]",
+                isOwn && "text-right"
+              )}
+            >
+              <span>{formatTime(message.created_at)}</span>
+              {message.failed && <span className="ml-1 text-red-400">!</span>}
+              {message.pending && <span className="ml-1">…</span>}
+            </div>
+          )}
         </div>
       </motion.div>
     );
@@ -655,7 +624,16 @@ export function SupportComposer({
           </div>
         )}
 
-        <div className="flex items-end gap-2">
+        <div className="flex items-end gap-1.5">
+          <button
+            type="button"
+            className="mb-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#8e8e93] hover:bg-black/5 dark:hover:bg-white/10"
+            aria-label={t("support.attach")}
+            onClick={() => fileRef.current?.click()}
+          >
+            <Paperclip className="h-5 w-5" />
+          </button>
+
           <div className="relative min-w-0 flex-1">
             <textarea
               ref={taRef}
@@ -666,7 +644,7 @@ export function SupportComposer({
               autoComplete="off"
               autoCorrect="on"
               placeholder={placeholder ?? t("support.typeMessagePlaceholder")}
-              className="support-live-input max-h-[96px] min-h-[44px] w-full resize-none rounded-full border bg-white py-2.5 pl-4 pr-11 text-base leading-5 text-[#202124] outline-none placeholder:text-[#9aa0a6] focus:ring-2 focus:ring-[#1a73e8]/20"
+              className="support-live-input max-h-[96px] min-h-[36px] w-full resize-none rounded-[20px] border-0 bg-white px-3.5 py-2 pr-10 text-[16px] leading-5 text-[#1c1c1e] outline-none placeholder:text-[#8e8e93] dark:bg-[#2c2c2e] dark:text-[#f5f5f7]"
               onFocus={() => {
                 scrollMobileThreadToBottom();
                 window.setTimeout(scrollMobileThreadToBottom, 120);
@@ -683,8 +661,8 @@ export function SupportComposer({
             <button
               type="button"
               className={cn(
-                "absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-[#9aa0a6] hover:bg-[#f1f3f4] hover:text-[#5f6368]",
-                emojiOpen && "bg-[#f1f3f4] text-[#1a73e8]"
+                "absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-[#8e8e93]",
+                emojiOpen && "text-[#007aff]"
               )}
               aria-label={t("support.emoji")}
               onClick={() => setEmojiOpen((v) => !v)}
@@ -705,31 +683,19 @@ export function SupportComposer({
             }}
           />
 
-          {canSend ? (
-            <button
-              type="button"
-              className="mb-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#1a73e8] text-white shadow-sm disabled:opacity-50"
-              onClick={() => void submit()}
-              disabled={disabled || sending}
-              aria-label={t("support.send")}
-            >
-              <Send className="h-4 w-4" />
-            </button>
-          ) : (
-            <button
-              type="button"
-              className="mb-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[#9aa0a6] hover:bg-[#eceff1] hover:text-[#5f6368]"
-              aria-label={t("support.attach")}
-              onClick={() => fileRef.current?.click()}
-            >
-              <Paperclip className="h-5 w-5" />
-            </button>
-          )}
+          <button
+            type="button"
+            className={cn(
+              "mb-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white transition-colors",
+              canSend ? "bg-[#007aff]" : "bg-[#c7c7cc]"
+            )}
+            onClick={() => void submit()}
+            disabled={disabled || sending || !canSend}
+            aria-label={t("support.send")}
+          >
+            <Send className="h-4 w-4" />
+          </button>
         </div>
-
-        <p className="mt-1.5 text-center text-[10px] text-[#9aa0a6]">
-          {t("support.poweredBy", { brand: BRAND.name })}
-        </p>
       </div>
     );
   }
@@ -887,50 +853,45 @@ export function SupportThreadFrame({
       <div
         className={cn(
           "flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-background",
-          live && "support-live bg-white",
+          live && "support-live bg-[#f2f2f7] dark:bg-black",
           className
         )}
       >
         <header
           className={cn(
             "flex shrink-0 items-center gap-1.5 border-b border-border bg-surface-elevated/95 px-1.5 py-2 backdrop-blur-xl sm:gap-2 sm:px-3 sm:py-2.5",
-            live && "support-live-header border-none px-3 py-3 sm:px-4",
+            live &&
+              "support-live-header border-b border-black/5 bg-white/85 px-3 py-2.5 backdrop-blur-xl dark:border-white/10 dark:bg-[#1c1c1e]/90 sm:px-4",
             safeAreaTop && "pt-[max(0.5rem,env(safe-area-inset-top))]"
           )}
         >
           {live ? (
             <>
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/95 text-[#5f6368] shadow-sm">
-                <LogoIcon className="h-5 w-5" />
+              {onBack && (
+                <button
+                  type="button"
+                  onClick={onBack}
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[#007aff] hover:bg-black/5 dark:hover:bg-white/10"
+                  aria-label={t("support.back")}
+                >
+                  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M15 18l-6-6 6-6" />
+                  </svg>
+                </button>
+              )}
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#e5e5ea] text-[#3a3a3c] dark:bg-[#3a3a3c] dark:text-[#f5f5f7]">
+                <LogoIcon className="h-4 w-4" />
               </span>
               <div className="min-w-0 flex-1 px-2 text-left">
-                <p className="truncate text-[16px] font-semibold leading-tight text-white">
-                  {title || t("support.liveTitle")}
+                <p className="truncate text-[16px] font-semibold leading-tight text-[#1c1c1e] dark:text-white">
+                  {title || t("support.title")}
                 </p>
-                <p className="mt-0.5 flex items-center gap-1.5 truncate text-[12px] leading-tight text-white/85">
-                  <span className="inline-block h-2 w-2 rounded-full bg-[#34a853]" aria-hidden />
+                <p className="mt-0.5 truncate text-[12px] leading-tight text-[#8e8e93]">
                   {subtitle || t("support.liveSubtitle")}
                 </p>
               </div>
-              <div className="flex shrink-0 items-center gap-0.5 text-white/95">
+              <div className="flex shrink-0 items-center justify-end gap-1">
                 {trailing}
-                <button
-                  type="button"
-                  className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/10"
-                  aria-label={t("nav.more")}
-                >
-                  <MoreHorizontal className="h-5 w-5" />
-                </button>
-                {onBack && (
-                  <button
-                    type="button"
-                    onClick={onBack}
-                    className="flex h-10 w-10 items-center justify-center rounded-full hover:bg-white/10"
-                    aria-label={t("support.back")}
-                  >
-                    <ChevronDown className="h-5 w-5" />
-                  </button>
-                )}
               </div>
             </>
           ) : (

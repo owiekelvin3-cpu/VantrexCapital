@@ -86,6 +86,16 @@ export function useUserSupport(userId: string | undefined) {
     void refreshList();
   }, [refreshList]);
 
+  // Open latest open/pending chat automatically so users land straight in the thread.
+  useEffect(() => {
+    if (loadingList || activeId) return;
+    const preferred =
+      conversations.find((c) => c.status === "open" || c.status === "pending") ??
+      conversations[0] ??
+      null;
+    if (preferred) setActiveId(preferred.id);
+  }, [conversations, loadingList, activeId]);
+
   useEffect(() => {
     if (!activeId) {
       setMessages([]);
@@ -202,19 +212,32 @@ export function useUserSupport(userId: string | undefined) {
     };
   }, [activeId, refreshList, syncLatestMessages]);
 
-  const startNew = async (subject: string, firstMessage: string) => {
+  const startNew = async (subject: string, firstMessage: string, files: File[] = []) => {
     if (!userId) return;
-    const { conversation } = await createConversation(userId, subject, firstMessage);
+    const { conversation, message } = await createConversation(
+      userId,
+      subject,
+      firstMessage,
+      files
+    );
     await refreshList({ soft: true });
     setActiveId(conversation.id);
+    setMessages([{ ...message, pending: false }]);
   };
 
   const send = async (body: string, files: File[]) => {
-    if (!userId || !activeId) return;
+    if (!userId) return;
+
+    if (!activeId) {
+      await startNew(t("support.defaultSubject"), body, files);
+      return;
+    }
+
+    const conversationId = activeId;
     const clientId = crypto.randomUUID();
     const optimistic: SupportMessageWithAttachments = {
       id: `temp-${clientId}`,
-      conversation_id: activeId,
+      conversation_id: conversationId,
       sender_id: userId,
       sender_role: "user",
       body,
@@ -229,7 +252,7 @@ export function useUserSupport(userId: string | undefined) {
     setMessages((prev) => [...prev, optimistic]);
     try {
       const saved = await sendMessage({
-        conversationId: activeId,
+        conversationId,
         senderId: userId,
         senderRole: "user",
         body,

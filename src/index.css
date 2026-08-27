@@ -817,45 +817,67 @@
     #f8fafc;
 }
 
-/* Live-chat widget (Smartsupp-style) */
+/* iMessage-style support chat */
 .support-live {
-  --support-live: #1a73e8;
-  --support-live-soft: #e8f1fc;
-  --support-live-agent: #f1f3f5;
-  --support-live-muted: #9aa0a6;
-  --support-live-footer: #f7f8fa;
+  --support-live: #007aff;
+  --support-live-soft: #e8f1ff;
+  --support-live-agent: #e9e9eb;
+  --support-live-muted: #8e8e93;
+  --support-live-footer: rgba(242, 242, 247, 0.96);
 }
 
 .support-live .support-thread-wallpaper {
-  background: #ffffff;
+  background: transparent;
 }
 
 .support-live-header {
-  background: var(--support-live);
-  color: #fff;
+  background: transparent;
+  color: inherit;
 }
 
 .support-live-user-bubble {
-  background: linear-gradient(90deg, #1a73e8 0%, #3b8aef 100%);
+  background: #007aff;
   color: #fff;
 }
 
 .support-live-agent-bubble {
   background: var(--support-live-agent);
-  color: #202124;
+  color: #1c1c1e;
+}
+
+.dark .support-live-agent-bubble {
+  background: #3a3a3c;
+  color: #f5f5f7;
 }
 
 .support-live-day-chip {
-  background: #5f6368;
-  color: #fff;
+  background: rgba(0, 0, 0, 0.12);
+  color: #3a3a3c;
+}
+
+.dark .support-live-day-chip {
+  background: rgba(255, 255, 255, 0.14);
+  color: #f5f5f7;
 }
 
 .support-live-composer {
   background: var(--support-live-footer);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.dark .support-live-composer {
+  background: rgba(28, 28, 30, 0.96);
+  border-top-color: rgba(255, 255, 255, 0.08);
 }
 
 .support-live-input {
-  border-color: var(--support-live);
+  border-color: transparent;
+  background: #ffffff;
+}
+
+.dark .support-live-input {
+  background: #2c2c2e;
+  color: #f5f5f7;
 }
 
 html.support-chat-open,

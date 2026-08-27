@@ -117,8 +117,9 @@ export async function listAdminConversations(
 export async function createConversation(
   userId: string,
   subject: string,
-  firstMessage: string
-): Promise<{ conversation: SupportConversation; message: SupportMessage }> {
+  firstMessage: string,
+  files?: File[]
+): Promise<{ conversation: SupportConversation; message: SupportMessageWithAttachments }> {
   const { data: conversation, error } = await supabase
     .from("support_conversations")
     .insert({
@@ -134,7 +135,8 @@ export async function createConversation(
     conversationId: conversation.id,
     senderId: userId,
     senderRole: "user",
-    body: firstMessage.trim(),
+    body: firstMessage.trim() || (files?.length ? " " : ""),
+    files,
   });
 
   return { conversation, message };
