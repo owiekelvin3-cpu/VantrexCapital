@@ -106,7 +106,11 @@ export default function CopyTradingPage() {
 
       <KycRequiredGate>
         <DashboardSheet>
-          <ProductNotice className="mb-6" />
+          <ProductNotice
+            className="mb-6"
+            title={t("copyTrading.howItWorksTitle")}
+            body={t("copyTrading.howItWorksBody")}
+          />
 
           {error && (
             <p role="alert" className="mb-4 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-400">
