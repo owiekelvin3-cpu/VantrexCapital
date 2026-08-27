@@ -2,6 +2,8 @@ export type Theme = "dark" | "light";
 
 export const THEME_STORAGE_KEY = "vantrex-theme";
 
+export const FIN_CHART_COLORS = ["#E2FF4C", "#A7F3D0", "#FDE68A", "#FECACA", "#E5E7EB"] as const;
+
 export function getStoredTheme(): Theme {
   try {
     return localStorage.getItem(THEME_STORAGE_KEY) === "light" ? "light" : "dark";

@@ -36,6 +36,7 @@ import {
   faCopy,
   faCreditCard,
   faEarthAmericas,
+  faEllipsis,
   faEnvelope,
   faExpand,
   faCompress,
@@ -142,6 +143,7 @@ export const Maximize2 = createIcon(faExpand, "Maximize2");
 export const Minimize2 = createIcon(faCompress, "Minimize2");
 export const Menu = createIcon(faBars, "Menu");
 export const Moon = createIcon(faMoon, "Moon");
+export const MoreHorizontal = createIcon(faEllipsis, "MoreHorizontal");
 export const Pickaxe = createIcon(faHammer, "Pickaxe");
 export const Plus = createIcon(faPlus, "Plus");
 export const Radio = createIcon(faTowerBroadcast, "Radio");
