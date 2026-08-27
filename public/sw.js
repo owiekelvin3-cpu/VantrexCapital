@@ -1,5 +1,5 @@
-/* VELION MARKETS — PWA + push service worker */
-const CACHE_VERSION = "velion-shell-v3";
+/* Vantrex Capital — PWA + push service worker */
+const CACHE_VERSION = "vantrex-shell-v1";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const ASSET_CACHE = `${CACHE_VERSION}-assets`;
 
@@ -15,7 +15,7 @@ const PRECACHE_URLS = [
   "/icons/icon.svg",
 ];
 
-const ASSET_EXT = /\.(?:js|css|woff2?|png|jpg|jpeg|gif|svg|webp|avif)$/i;
+const ASSET_EXT = /\.(?:css|woff2?|png|jpg|jpeg|gif|svg|webp|avif)$/i;
 const VIDEO_EXT = /\.(?:mp4|webm|ogg|mov)$/i;
 
 self.addEventListener("install", (event) => {
@@ -35,7 +35,7 @@ self.addEventListener("activate", (event) => {
       .then((keys) =>
         Promise.all(
           keys
-            .filter((key) => key.startsWith("velion-") && key !== SHELL_CACHE && key !== ASSET_CACHE)
+            .filter((key) => key !== SHELL_CACHE && key !== ASSET_CACHE)
             .map((key) => caches.delete(key))
         )
       )
@@ -75,6 +75,17 @@ async function networkFirstNavigation(request) {
       (await cache.match("/")) ||
       Response.error()
     );
+  }
+}
+
+/** Never cache-first hashed JS — stale chunks break lazy dashboard routes after deploys. */
+async function networkFirstScript(request) {
+  try {
+    const fresh = await fetch(request);
+    return fresh;
+  } catch {
+    const cached = await caches.match(request);
+    return cached || Response.error();
   }
 }
 
@@ -126,6 +137,11 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  if (url.pathname.startsWith("/assets/") && url.pathname.endsWith(".js")) {
+    event.respondWith(networkFirstScript(request));
+    return;
+  }
+
   if (url.pathname.startsWith("/assets/") || ASSET_EXT.test(url.pathname)) {
     event.respondWith(cacheFirstAsset(request));
     return;
@@ -143,7 +159,7 @@ self.addEventListener("fetch", (event) => {
 
 self.addEventListener("push", (event) => {
   let payload = {
-    title: "VELION MARKETS",
+    title: "Vantrex Capital",
     body: "You have a new notification.",
     url: "/dashboard",
     silent: false,
@@ -164,7 +180,7 @@ self.addEventListener("push", (event) => {
       body: payload.body,
       icon: "/icons/icon-192.png",
       badge: "/favicon.svg",
-      tag: payload.tag || "velion-notification",
+      tag: payload.tag || "vantrex-notification",
       renotify: true,
       silent: payload.silent === true,
       vibrate: [100, 50, 100],
@@ -202,6 +218,13 @@ self.addEventListener("message", (event) => {
     return;
   }
 
+  if (event.data?.type === "CLEAR_CACHES") {
+    event.waitUntil(
+      caches.keys().then((keys) => Promise.all(keys.map((key) => caches.delete(key))))
+    );
+    return;
+  }
+
   if (event.data?.type !== "SHOW_NOTIFICATION") return;
 
   const { title, body, url, tag, silent } = event.data;
@@ -210,7 +233,7 @@ self.addEventListener("message", (event) => {
       body,
       icon: "/icons/icon-192.png",
       badge: "/favicon.svg",
-      tag: tag || "velion-notification",
+      tag: tag || "vantrex-notification",
       renotify: true,
       silent: silent === true,
       vibrate: [100, 50, 100],
