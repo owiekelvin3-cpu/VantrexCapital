@@ -50,13 +50,16 @@ export default function AITradingWalkthrough({
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") handleSkip();
+      if (e.key === "Escape") {
+        markWalkthroughSeen(userId);
+        onClose();
+      }
       if (e.key === "ArrowRight" && step < total - 1) setStep((s) => s + 1);
       if (e.key === "ArrowLeft" && step > 0) setStep((s) => s - 1);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, step, total]);
+  }, [open, step, total, userId, onClose]);
 
   if (!open || total === 0) return null;
 

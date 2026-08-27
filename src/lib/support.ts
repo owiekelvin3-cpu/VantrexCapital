@@ -312,7 +312,7 @@ export async function uploadAttachment(params: {
     throw new Error("File exceeds 10MB limit");
   }
 
-  const safeName = params.file.name.replace(/[^\w.\-]+/g, "_");
+  const safeName = params.file.name.replace(/[^\w.-]+/g, "_");
   const path = `${params.uploaderId}/${params.conversationId}/${Date.now()}-${safeName}`;
 
   const { error: uploadError } = await supabase.storage

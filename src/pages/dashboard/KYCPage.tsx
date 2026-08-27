@@ -216,7 +216,7 @@ export default function KYCPage() {
     setSuccess("");
 
     const stamp = Date.now();
-    const safeName = file.name.replace(/[^\w.\-]+/g, "_").slice(0, 80);
+    const safeName = file.name.replace(/[^\w.-]+/g, "_").slice(0, 80);
     const docPath = `${user.id}/${stamp}-${safeName}`;
     const selfiePath = `${user.id}/${stamp}-face-selfie.jpg`;
 

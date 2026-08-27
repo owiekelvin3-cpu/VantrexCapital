@@ -157,7 +157,7 @@ export function TradingChart({ candles, symbol, lastPrice, loading }: TradingCha
     const canIncremental =
       lastLenRef.current > 0 &&
       lastTimeRef.current !== null &&
-      (last.time === lastTimeRef.current || last.time > lastTimeRef.current) &&
+      last.time >= lastTimeRef.current &&
       candles.length >= lastLenRef.current - 1 &&
       candles.length <= lastLenRef.current + 1;
 
