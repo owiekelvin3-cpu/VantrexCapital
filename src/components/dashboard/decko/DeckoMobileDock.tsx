@@ -53,7 +53,11 @@ const MORE_MENU_PATHS = MORE_MENU_ITEMS.map((item) => item.href);
 function isActive(pathname: string, href: string) {
   if (href === "/dashboard") return pathname === "/dashboard";
   if (href === "/dashboard/trading-room") {
-    return pathname.startsWith("/dashboard/trading") || pathname.startsWith("/dashboard/ai-trading") || pathname.startsWith("/dashboard/trades");
+    return (
+      pathname.startsWith("/dashboard/trading") ||
+      pathname.startsWith("/dashboard/ai-trading") ||
+      pathname.startsWith("/dashboard/trades")
+    );
   }
   if (href === "/dashboard/deposits") {
     return (
@@ -89,74 +93,79 @@ export function DeckoMobileDock({
 
   return (
     <>
-      <div className="decko-mobile-dock decko-mobile-only pointer-events-none fixed inset-x-0 bottom-0 z-50 px-3 pb-[max(0.5rem,var(--safe-bottom))] safe-area-x">
+      <div className="decko-mobile-dock decko-mobile-only pointer-events-none fixed inset-x-0 bottom-0 z-50 px-4 pb-[max(0.65rem,var(--safe-bottom))]">
         <nav
-          className="pointer-events-auto mx-auto max-w-[420px] overflow-visible rounded-[24px] border border-[var(--decko-dock-border)] bg-[var(--decko-dock-bg)] p-1 shadow-[0_12px_40px_rgba(0,0,0,0.28)] backdrop-blur-2xl"
+          className="decko-dock-bar pointer-events-auto mx-auto grid max-w-[440px] grid-cols-4 items-end gap-1 rounded-[22px] border px-1.5 pb-1.5 pt-1.5 shadow-[0_10px_36px_rgba(0,0,0,0.18)] backdrop-blur-xl"
           aria-label={t("dashboard.navLabel")}
         >
-          <div className="grid grid-cols-4 items-center gap-0.5">
-            {MOBILE_TABS.map((item) => {
-              const Icon = item.icon;
-              const isMore = item.href === null;
-              const active = isMore
-                ? menuOpen || isMoreMenuActive(pathname)
-                : isActive(pathname, item.href!);
-              const featured = "featured" in item && item.featured;
+          {MOBILE_TABS.map((item) => {
+            const Icon = item.icon;
+            const isMore = item.href === null;
+            const featured = "featured" in item && item.featured;
+            const active = isMore
+              ? menuOpen || isMoreMenuActive(pathname)
+              : isActive(pathname, item.href!);
 
-              const inner = (
-                <>
-                  {!featured && active && (
-                    <span className="absolute inset-0 rounded-[18px] bg-[var(--decko-accent)]/18" />
+            const content = featured ? (
+              <span className="flex flex-col items-center justify-end gap-1">
+                <span className="-mt-5 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--decko-accent)] text-[var(--decko-accent-text)] shadow-[0_8px_22px_rgba(226,255,76,0.35)] ring-4 ring-[var(--decko-dock-ring)]">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <span
+                  className={cn(
+                    "text-[10px] font-semibold leading-none",
+                    active ? "text-text-primary" : "text-text-tertiary"
                   )}
-                  <span
-                    className={cn(
-                      "relative flex items-center justify-center rounded-2xl transition-all duration-200",
-                      featured
-                        ? "h-11 w-11 rounded-full bg-[var(--decko-accent)] text-[#111111] shadow-[0_6px_18px_rgba(226,255,76,0.4)]"
-                        : cn(
-                            "h-9 w-9",
-                            active ? "text-[var(--decko-accent)]" : "text-[#9CA3AF]"
-                          )
-                    )}
-                  >
-                    <Icon className={cn("shrink-0", featured ? "h-5 w-5" : "h-[18px] w-[18px]")} />
-                  </span>
-                  <span
-                    className={cn(
-                      "relative mt-1 max-w-[72px] truncate text-[11px] font-medium leading-none",
-                      active || featured ? "text-white" : "text-[#737373]"
-                    )}
-                  >
-                    {t(item.labelKey)}
-                  </span>
-                </>
-              );
+                >
+                  {t(item.labelKey)}
+                </span>
+              </span>
+            ) : (
+              <span className="flex flex-col items-center justify-center gap-1">
+                <span
+                  className={cn(
+                    "flex h-9 w-9 items-center justify-center rounded-xl transition-colors",
+                    active
+                      ? "bg-[var(--decko-accent)]/18 text-[var(--decko-accent-ink)]"
+                      : "text-text-tertiary"
+                  )}
+                >
+                  <Icon className="h-[18px] w-[18px]" />
+                </span>
+                <span
+                  className={cn(
+                    "text-[10px] font-medium leading-none",
+                    active ? "text-text-primary" : "text-text-tertiary"
+                  )}
+                >
+                  {t(item.labelKey)}
+                </span>
+              </span>
+            );
 
-              const tabClass =
-                "relative flex min-h-[62px] flex-col items-center justify-center px-1 py-1.5";
+            const className = "relative flex min-h-[56px] items-end justify-center px-1";
 
-              if (isMore) {
-                return (
-                  <button
-                    key={item.labelKey}
-                    type="button"
-                    onClick={onMenuOpen}
-                    className={tabClass}
-                    aria-label={t("nav.more")}
-                    aria-expanded={menuOpen}
-                  >
-                    {inner}
-                  </button>
-                );
-              }
-
+            if (isMore) {
               return (
-                <Link key={item.href} to={item.href!} className={tabClass}>
-                  {inner}
-                </Link>
+                <button
+                  key={item.labelKey}
+                  type="button"
+                  onClick={onMenuOpen}
+                  className={className}
+                  aria-label={t("nav.more")}
+                  aria-expanded={menuOpen}
+                >
+                  {content}
+                </button>
               );
-            })}
-          </div>
+            }
+
+            return (
+              <Link key={item.href} to={item.href!} className={className}>
+                {content}
+              </Link>
+            );
+          })}
         </nav>
       </div>
 
@@ -169,7 +178,7 @@ export function DeckoMobileDock({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+              className="absolute inset-0 bg-black/45 backdrop-blur-[2px]"
               onClick={onMenuClose}
               aria-label={t("common.close", { defaultValue: "Close" })}
             />
@@ -190,15 +199,15 @@ export function DeckoMobileDock({
                 <button
                   type="button"
                   onClick={onMenuClose}
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-bg-tertiary text-text-secondary transition-colors hover:bg-bg-hover hover:text-text-primary"
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-bg-tertiary text-text-secondary"
                   aria-label={t("common.close", { defaultValue: "Close" })}
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
               </div>
 
-              <div className="px-3 pb-2">
-                <div className="grid grid-cols-4 gap-1.5">
+              <div className="px-3 pb-3">
+                <div className="grid grid-cols-4 gap-2">
                   {MORE_MENU_ITEMS.map((item, i) => {
                     const Icon = item.icon;
                     const active = isActive(pathname, item.href);
@@ -207,29 +216,24 @@ export function DeckoMobileDock({
                         key={item.href}
                         initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.03 + i * 0.025 }}
+                        transition={{ delay: 0.02 + i * 0.02 }}
                       >
                         <Link
                           to={item.href}
                           onClick={onMenuClose}
-                          className="group flex flex-col items-center gap-1 rounded-xl p-1 text-center"
+                          className="flex flex-col items-center gap-1.5 rounded-xl p-1 text-center"
                         >
                           <span
                             className={cn(
-                              "flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200 group-active:scale-95",
+                              "flex h-11 w-11 items-center justify-center rounded-2xl transition-colors",
                               active
-                                ? "bg-[var(--decko-accent)] text-[var(--decko-accent-text)] shadow-[0_6px_16px_rgba(226,255,76,0.3)]"
-                                : "bg-bg-tertiary text-text-primary group-hover:bg-bg-hover"
+                                ? "bg-[var(--decko-accent)] text-[var(--decko-accent-text)]"
+                                : "bg-bg-tertiary text-text-primary"
                             )}
                           >
                             <Icon className="h-4 w-4" />
                           </span>
-                          <span
-                            className={cn(
-                              "line-clamp-2 min-h-[2rem] w-full text-[10px] font-medium leading-tight",
-                              active ? "text-text-primary" : "text-text-secondary"
-                            )}
-                          >
+                          <span className="line-clamp-2 min-h-[2rem] w-full text-[10px] font-medium leading-tight text-text-secondary">
                             {t(item.labelKey)}
                           </span>
                         </Link>
@@ -246,7 +250,7 @@ export function DeckoMobileDock({
                     onMenuClose();
                     onLogout();
                   }}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-red/20 bg-red/8 px-3 py-2.5 text-xs font-semibold text-red transition-colors active:bg-red/12"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-500/20 bg-red-500/8 px-3 py-2.5 text-xs font-semibold text-red-500"
                 >
                   <LogOut className="h-3.5 w-3.5" />
                   {t("common.signOut")}

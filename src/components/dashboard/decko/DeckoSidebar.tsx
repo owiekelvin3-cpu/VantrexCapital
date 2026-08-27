@@ -3,12 +3,10 @@ import { useCallback, useState, type FormEvent, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { BRAND } from "@/constants/brand";
 import { cn } from "@/lib/utils";
-import { Logo, LogoIcon } from "@/components/brand/Logo";
+import { LogoIcon } from "@/components/brand/Logo";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
-import { LanguageSelector } from "@/components/layout/LanguageSelector";
 import { useAuth } from "@/hooks/useAuth";
 import { UserAvatar } from "@/components/settings/UserAvatar";
-import { Button } from "@/components/ui/button";
 import {
   ArrowDownToLine,
   ArrowRight,
@@ -38,48 +36,61 @@ type NavLink = {
   exact?: boolean;
 };
 
-const navGroups: { labelKey: string; links: NavLink[] }[] = [
-  {
-    labelKey: "dashboard.navGroupTrade",
-    links: [
-      { href: "/dashboard", labelKey: "dashboard.overview", icon: LayoutDashboard, exact: true },
-      { href: "/dashboard/trading-room", labelKey: "dashboard.tradingRoom", icon: CandlestickChart },
-      { href: "/dashboard/ai-trading", labelKey: "dashboard.aiTrading", icon: Bot },
-    ],
-  },
-  {
-    labelKey: "dashboard.navGroupCash",
-    links: [
-      { href: "/dashboard/deposits", labelKey: "dashboard.deposits", icon: ArrowDownToLine },
-      { href: "/dashboard/withdrawals", labelKey: "dashboard.withdrawals", icon: ArrowUpFromLine },
-      { href: "/dashboard/transactions", labelKey: "dashboard.transactions", icon: History },
-    ],
-  },
-  {
-    labelKey: "dashboard.navGroupProducts",
-    links: [
-      { href: "/dashboard/trades", labelKey: "dashboard.trades", icon: TrendingUp },
-      { href: "/dashboard/copy-trading", labelKey: "dashboard.copyTrading", icon: Copy },
-      { href: "/dashboard/mining", labelKey: "dashboard.mining", icon: Pickaxe },
-      { href: "/dashboard/signals", labelKey: "dashboard.signals", icon: Radio },
-    ],
-  },
-  {
-    labelKey: "dashboard.navGroupAccount",
-    links: [
-      { href: "/dashboard/notifications", labelKey: "dashboard.notifications", icon: Bell },
-      { href: "/dashboard/support", labelKey: "dashboard.support", icon: MessageCircle },
-      { href: "/dashboard/kyc", labelKey: "dashboard.kyc", icon: FileCheck },
-    ],
-  },
+const MAIN_MENU: NavLink[] = [
+  { href: "/dashboard", labelKey: "dashboard.overview", icon: LayoutDashboard, exact: true },
+  { href: "/dashboard/trading-room", labelKey: "dashboard.tradingRoom", icon: CandlestickChart },
+  { href: "/dashboard/trades", labelKey: "dashboard.trades", icon: TrendingUp },
+  { href: "/dashboard/deposits", labelKey: "dashboard.deposits", icon: ArrowDownToLine },
+  { href: "/dashboard/withdrawals", labelKey: "dashboard.withdrawals", icon: ArrowUpFromLine },
+  { href: "/dashboard/transactions", labelKey: "dashboard.transactions", icon: History },
+  { href: "/dashboard/ai-trading", labelKey: "dashboard.aiTrading", icon: Bot },
+  { href: "/dashboard/copy-trading", labelKey: "dashboard.copyTrading", icon: Copy },
+  { href: "/dashboard/mining", labelKey: "dashboard.mining", icon: Pickaxe },
+  { href: "/dashboard/signals", labelKey: "dashboard.signals", icon: Radio },
+];
+
+const ACCOUNT_MENU: NavLink[] = [
+  { href: "/dashboard/notifications", labelKey: "dashboard.notifications", icon: Bell },
+  { href: "/dashboard/kyc", labelKey: "dashboard.kyc", icon: FileCheck },
+  { href: "/dashboard/support", labelKey: "dashboard.support", icon: MessageCircle },
+  { href: "/dashboard/settings", labelKey: "dashboard.settings", icon: Settings },
 ];
 
 function isLinkActive(pathname: string, href: string, exact?: boolean) {
   if (exact || href === "/dashboard") return pathname === "/dashboard";
   if (href === "/dashboard/trading-room") {
-    return pathname.startsWith("/dashboard/trading");
+    return pathname.startsWith("/dashboard/trading") && !pathname.startsWith("/dashboard/trades");
   }
   return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+function NavItem({
+  item,
+  onClose,
+}: {
+  item: NavLink;
+  onClose?: () => void;
+}) {
+  const { pathname } = useLocation();
+  const { t } = useTranslation();
+  const Icon = item.icon;
+  const active = isLinkActive(pathname, item.href, item.exact);
+
+  return (
+    <Link
+      to={item.href}
+      onClick={onClose}
+      className={cn(
+        "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors",
+        active
+          ? "bg-[var(--decko-accent)] text-[var(--decko-accent-text)] shadow-[0_8px_20px_rgba(226,255,76,0.22)]"
+          : "text-[var(--decko-sidebar-muted)] hover:bg-[var(--decko-sidebar-hover)] hover:text-[var(--decko-sidebar-text)]"
+      )}
+    >
+      <Icon className="h-4 w-4 shrink-0" />
+      <span className="truncate">{t(item.labelKey)}</span>
+    </Link>
+  );
 }
 
 type DeckoSidebarProps = {
@@ -94,12 +105,10 @@ function SidebarChrome({
   onClose?: () => void;
   showClose?: boolean;
 }) {
-  const { pathname } = useLocation();
   const { t } = useTranslation();
   const { profile, signOut } = useAuth();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const settingsActive = pathname === "/dashboard/settings";
 
   const handleSearch = useCallback(
     (e: FormEvent) => {
@@ -108,17 +117,16 @@ function SidebarChrome({
       if (!q) return;
       if (q.includes("transaction") || q.includes("history")) navigate("/dashboard/transactions");
       else if (q.includes("deposit") || q.includes("fund")) navigate("/dashboard/deposits");
-      else if (q.includes("withdraw") || q.includes("cash out")) navigate("/dashboard/withdrawals");
+      else if (q.includes("withdraw")) navigate("/dashboard/withdrawals");
       else if (q.includes("ai") || q.includes("bot")) navigate("/dashboard/ai-trading");
-      else if (q.includes("room") || q.includes("chart") || q.includes("live")) navigate("/dashboard/trading-room");
-      else if (q.includes("trade") || q.includes("order")) navigate("/dashboard/trades");
+      else if (q.includes("room") || q.includes("chart")) navigate("/dashboard/trading-room");
+      else if (q.includes("trade")) navigate("/dashboard/trades");
       else if (q.includes("copy")) navigate("/dashboard/copy-trading");
       else if (q.includes("min")) navigate("/dashboard/mining");
       else if (q.includes("signal")) navigate("/dashboard/signals");
       else if (q.includes("kyc") || q.includes("verify")) navigate("/dashboard/kyc");
-      else if (q.includes("support") || q.includes("help") || q.includes("ticket") || q.includes("chat")) {
-        navigate("/dashboard/support");
-      } else if (q.includes("setting") || q.includes("profile")) navigate("/dashboard/settings");
+      else if (q.includes("support") || q.includes("help")) navigate("/dashboard/support");
+      else if (q.includes("setting") || q.includes("profile")) navigate("/dashboard/settings");
       else navigate("/dashboard");
       setSearchQuery("");
       onClose?.();
@@ -127,18 +135,20 @@ function SidebarChrome({
   );
 
   return (
-    <>
-      <div className="mb-4 flex items-start justify-between gap-2 px-2 pt-[max(0px,env(safe-area-inset-top))] lg:mb-6 lg:pt-0">
+    <div className="flex h-full min-h-0 flex-col">
+      <div className="mb-5 flex items-center justify-between gap-2 px-1 pt-[max(0px,env(safe-area-inset-top))] lg:pt-0">
         <Link to="/dashboard" className="flex min-w-0 items-center gap-2.5" onClick={onClose}>
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--decko-accent)]">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--decko-accent)] text-[var(--decko-accent-text)]">
             <LogoIcon className="h-5 w-5" />
           </span>
-          <span className="truncate text-lg font-bold text-[var(--decko-sidebar-text)]">{BRAND.name}</span>
+          <span className="truncate text-[15px] font-bold tracking-wide text-[var(--decko-sidebar-text)]">
+            {BRAND.shortName}
+          </span>
         </Link>
         {showClose ? (
           <button
             type="button"
-            className="flex h-10 w-10 items-center justify-center rounded-full text-[var(--decko-sidebar-muted)] hover:bg-[var(--decko-sidebar-hover)]"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-[var(--decko-sidebar-muted)] hover:bg-[var(--decko-sidebar-hover)] hover:text-[var(--decko-sidebar-text)]"
             onClick={onClose}
             aria-label={t("dashboard.closeSidebar")}
           >
@@ -147,7 +157,7 @@ function SidebarChrome({
         ) : null}
       </div>
 
-      <form onSubmit={handleSearch} className="relative mb-6">
+      <form onSubmit={handleSearch} className="relative mb-5">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--decko-sidebar-muted)]" />
         <input
           type="search"
@@ -159,107 +169,72 @@ function SidebarChrome({
         />
       </form>
 
-      <div className="min-h-0 flex-1 overflow-y-auto pr-1">
-        {navGroups.map((group) => (
-          <div key={group.labelKey} className="mb-5">
-            <p className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--decko-sidebar-muted)]">
-              {t(group.labelKey)}
-            </p>
-            <nav className="space-y-1">
-              {group.links.map((item) => {
-                const Icon = item.icon;
-                const active = isLinkActive(pathname, item.href, item.exact);
-                return (
-                  <Link
-                    key={item.href}
-                    to={item.href}
-                    onClick={onClose}
-                    className={cn(
-                      "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                      active
-                        ? "bg-[var(--decko-accent)] text-[var(--decko-accent-text)] shadow-[0_8px_24px_rgba(212,255,66,0.25)]"
-                        : "text-[var(--decko-sidebar-muted)] hover:bg-[var(--decko-sidebar-hover)] hover:text-[var(--decko-sidebar-text)]"
-                    )}
-                  >
-                    <Icon className="h-4 w-4 shrink-0" />
-                    <span className="truncate">{t(item.labelKey)}</span>
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
-        ))}
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <p className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--decko-sidebar-muted)]">
+          {t("dashboard.navGroupTrade")}
+        </p>
+        <nav className="space-y-0.5">
+          {MAIN_MENU.map((item) => (
+            <NavItem key={item.href} item={item} onClose={onClose} />
+          ))}
+        </nav>
 
-        {profile?.role === "admin" && (
-          <Link
-            to="/dashboard/admin"
-            onClick={onClose}
-            className="mb-4 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gold hover:bg-[var(--decko-sidebar-hover)]"
-          >
-            <Shield className="h-4 w-4" />
-            {t("nav.adminPanel")}
-          </Link>
-        )}
+        <p className="mb-2 mt-5 px-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--decko-sidebar-muted)]">
+          {t("dashboard.navGroupAccount")}
+        </p>
+        <nav className="space-y-0.5">
+          {ACCOUNT_MENU.map((item) => (
+            <NavItem key={item.href} item={item} onClose={onClose} />
+          ))}
+          {profile?.role === "admin" && (
+            <Link
+              to="/dashboard/admin"
+              onClick={onClose}
+              className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gold hover:bg-[var(--decko-sidebar-hover)]"
+            >
+              <Shield className="h-4 w-4" />
+              {t("nav.adminPanel")}
+            </Link>
+          )}
+        </nav>
       </div>
 
-      <div className="mt-auto shrink-0 space-y-3 pt-4 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+      <div className="mt-4 shrink-0 space-y-2.5 border-t border-[var(--decko-sidebar-border)] pt-4 pb-[max(0.25rem,env(safe-area-inset-bottom))]">
         <Link
           to="/dashboard/deposits"
           onClick={onClose}
-          className="block rounded-2xl border border-[var(--decko-sidebar-border)] bg-[var(--decko-sidebar-surface)] p-4 transition-transform hover:scale-[1.02]"
+          className="block rounded-2xl border border-[var(--decko-sidebar-border)] bg-[var(--decko-sidebar-surface)] p-3.5 transition-colors hover:border-[var(--decko-accent)]/30"
         >
-          <p className="text-[11px] uppercase tracking-wide text-[var(--decko-sidebar-muted)]">Upcoming Event</p>
-          <p className="mt-1 text-sm font-semibold text-[var(--decko-sidebar-text)]">Fund your account</p>
-          <span className="mt-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-[var(--decko-accent)] text-[var(--decko-accent-text)]">
-            <ArrowRight className="h-3.5 w-3.5" />
-          </span>
-        </Link>
-
-        <Link
-          to="/dashboard/settings"
-          onClick={onClose}
-          className={cn(
-            "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
-            settingsActive
-              ? "bg-[var(--decko-sidebar-hover)] text-[var(--decko-sidebar-text)]"
-              : "text-[var(--decko-sidebar-muted)] hover:bg-[var(--decko-sidebar-hover)] hover:text-[var(--decko-sidebar-text)]"
-          )}
-        >
-          <Settings className="h-4 w-4 shrink-0" />
-          {t("dashboard.settings")}
-        </Link>
-
-        <div className="flex items-center gap-2.5 rounded-xl border border-[var(--decko-sidebar-border)] bg-[var(--decko-sidebar-surface)] px-2.5 py-2.5">
-          <UserAvatar size="sm" name={profile?.full_name} avatarUrl={profile?.avatar_url} />
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-[var(--decko-sidebar-text)]">
-              {profile?.full_name || t("common.investor")}
-            </p>
-            <p className="truncate text-[11px] text-[var(--decko-sidebar-muted)]">{profile?.email}</p>
+          <div className="flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              <p className="text-[10px] uppercase tracking-[0.14em] text-[var(--decko-sidebar-muted)]">
+                {t("dashboard.deposits")}
+              </p>
+              <p className="mt-1 truncate text-sm font-semibold text-[var(--decko-sidebar-text)]">
+                {t("dashboard.fundAccount")}
+              </p>
+            </div>
+            <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--decko-accent)] text-[var(--decko-accent-text)]">
+              <ArrowRight className="h-3.5 w-3.5" />
+            </span>
           </div>
-        </div>
-
-        <div className="flex items-center gap-1 lg:hidden">
-          <ThemeToggle className="rounded-xl border border-[var(--decko-sidebar-border)] bg-[var(--decko-sidebar-surface)]" />
-          <LanguageSelector />
-        </div>
+        </Link>
 
         <ThemeToggle
           showLabel
-          className="hidden w-full justify-start rounded-xl border border-[var(--decko-sidebar-border)] bg-[var(--decko-sidebar-surface)] px-3 text-[var(--decko-sidebar-text)] hover:bg-[var(--decko-sidebar-hover)] lg:inline-flex"
+          className="w-full justify-start rounded-xl border border-[var(--decko-sidebar-border)] bg-[var(--decko-sidebar-surface)] px-3 text-[var(--decko-sidebar-text)] hover:bg-[var(--decko-sidebar-hover)]"
         />
 
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full rounded-xl border-[var(--decko-sidebar-border)] bg-transparent text-[var(--decko-sidebar-text)] hover:bg-[var(--decko-sidebar-hover)]"
+        <button
+          type="button"
           onClick={() => void signOut()}
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-[#f87171] transition-colors hover:bg-[var(--decko-sidebar-hover)]"
         >
-          <LogOut className="mr-2 h-3.5 w-3.5" />
+          <LogOut className="h-4 w-4" />
           {t("common.signOut")}
-        </Button>
+        </button>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -268,18 +243,16 @@ export function DeckoSidebar({ mobileOpen = false, onClose }: DeckoSidebarProps)
 
   return (
     <>
-      {/* Desktop rail — always visible at lg+ */}
       <aside
-        className="decko-sidebar decko-sidebar-desktop z-30 h-dvh w-[248px] shrink-0 flex-col overflow-hidden px-4 py-5"
+        className="decko-sidebar decko-sidebar-desktop z-30 h-dvh w-[240px] shrink-0 flex-col overflow-hidden px-3.5 py-5"
         aria-label={t("dashboard.navLabel")}
       >
         <SidebarChrome />
       </aside>
 
-      {/* Mobile drawer */}
       <aside
         className={cn(
-          "decko-sidebar decko-sidebar-mobile fixed inset-y-0 left-0 z-50 h-dvh w-[min(18rem,88vw)] flex-col overflow-hidden px-4 py-5 shadow-2xl transition-transform duration-300 ease-out",
+          "decko-sidebar decko-sidebar-mobile fixed inset-y-0 left-0 z-50 h-dvh w-[min(17.5rem,86vw)] flex-col overflow-hidden px-3.5 py-5 shadow-2xl transition-transform duration-300 ease-out",
           mobileOpen ? "translate-x-0" : "-translate-x-full pointer-events-none"
         )}
         aria-label={t("dashboard.navLabel")}
@@ -300,53 +273,29 @@ export function DeckoMobileTopBar({
 }) {
   const { t } = useTranslation();
   const { profile } = useAuth();
-  const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const handleSearch = useCallback(
-    (e: FormEvent) => {
-      e.preventDefault();
-      const q = searchQuery.trim().toLowerCase();
-      if (!q) return;
-      if (q.includes("deposit")) navigate("/dashboard/deposits");
-      else if (q.includes("withdraw")) navigate("/dashboard/withdrawals");
-      else if (q.includes("ai")) navigate("/dashboard/ai-trading");
-      else if (q.includes("trade")) navigate("/dashboard/trades");
-      else navigate("/dashboard");
-      setSearchQuery("");
-    },
-    [searchQuery, navigate]
-  );
 
   return (
-    <div className="decko-mobile-bar decko-mobile-only flex items-center justify-between gap-2 border-b px-3 py-3 safe-area-top safe-area-x">
+    <div className="decko-mobile-bar decko-mobile-only flex items-center gap-3 border-b px-4 py-3 safe-area-top safe-area-x">
       <button
         type="button"
         onClick={onMenuOpen}
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-bg-tertiary text-text-secondary"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--decko-accent)] text-[var(--decko-accent-text)]"
         aria-label={t("dashboard.openSidebar")}
       >
         <LogoIcon className="h-4 w-4" />
       </button>
+
       <Link to="/dashboard" className="min-w-0 flex-1">
-        <Logo size="sm" wordmarkClassName="text-sm" />
+        <span className="block truncate text-[15px] font-bold tracking-wide text-text-primary">
+          {BRAND.shortName}
+        </span>
       </Link>
-      <form onSubmit={handleSearch} className="relative hidden min-w-0 flex-1 sm:block">
-        <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-text-tertiary" />
-        <input
-          type="search"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder={t("dashboard.searchPlaceholder")}
-          className="h-9 w-full max-w-[10rem] rounded-lg border border-border bg-bg-tertiary pl-8 pr-2 text-sm text-text-primary outline-none"
-        />
-      </form>
-      <div className="flex shrink-0 items-center gap-1.5">
-        <ThemeToggle className="rounded-lg border border-border bg-bg-tertiary" />
+
+      <div className="flex shrink-0 items-center gap-2">
         {notificationSlot}
         <Link
           to="/dashboard/settings"
-          className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-border"
+          className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-border bg-bg-tertiary"
           aria-label={t("dashboard.settings")}
         >
           <UserAvatar size="sm" name={profile?.full_name} avatarUrl={profile?.avatar_url} />

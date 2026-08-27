@@ -1127,6 +1127,7 @@ html.support-chat-open body {
 .decko-shell {
   --decko-accent: #e2ff4c;
   --decko-accent-text: #111111;
+  --decko-accent-ink: #9bb820;
   --decko-sidebar: #111111;
   --decko-sidebar-border: #1f1f1f;
   --decko-sidebar-muted: #9ca3af;
@@ -1134,9 +1135,10 @@ html.support-chat-open body {
   --decko-sidebar-hover: #1a1a1a;
   --decko-sidebar-surface: #141414;
   --decko-sidebar-input: #1a1a1a;
-  --decko-dock-bg: rgba(17, 17, 17, 0.94);
-  --decko-dock-border: rgba(255, 255, 255, 0.1);
-  background: var(--decko-sidebar);
+  --decko-dock-bg: rgba(255, 255, 255, 0.92);
+  --decko-dock-border: rgba(15, 15, 15, 0.08);
+  --decko-dock-ring: rgba(255, 255, 255, 0.95);
+  background: var(--bg-primary, #f4f4f5);
 }
 
 .dark .decko-shell,
@@ -1146,12 +1148,17 @@ html.support-chat-open body {
   --decko-sidebar-hover: #141414;
   --decko-sidebar-surface: #111111;
   --decko-sidebar-input: #141414;
-  --decko-dock-bg: rgba(10, 10, 10, 0.96);
+  --decko-accent-ink: #e2ff4c;
+  --decko-dock-bg: rgba(17, 17, 17, 0.94);
+  --decko-dock-border: rgba(255, 255, 255, 0.1);
+  --decko-dock-ring: rgba(17, 17, 17, 0.96);
+  background: var(--bg-primary, #0a0a0a);
 }
 
 .decko-sidebar {
   background: var(--decko-sidebar);
   border-right: 1px solid var(--decko-sidebar-border);
+  color: var(--decko-sidebar-text);
 }
 
 /* Desktop sidebar must stay visible on PC (don't rely only on Tailwind lg:flex). */
@@ -1191,6 +1198,11 @@ html.support-chat-open body {
   border-color: var(--border);
   background: color-mix(in srgb, var(--bg-secondary) 92%, transparent);
   backdrop-filter: blur(12px);
+}
+
+.decko-dock-bar {
+  background: var(--decko-dock-bg);
+  border-color: var(--decko-dock-border);
 }
 
 .decko-mobile-only {
