@@ -400,6 +400,8 @@
     "signUpLocationHint": "Tell us where you’re based — required for account compliance.",
     "signInFailed": "Sign in failed. Check your email and password.",
     "signUpFailed": "Could not create your account. Please try again.",
+    "emailAlreadyRegistered": "This email already has an account. Sign in instead.",
+    "rateLimited": "Too many attempts. Wait a minute and try again.",
     "checkEmail": "Check your email to confirm your account, then sign in."
   },
   "dashboard": {

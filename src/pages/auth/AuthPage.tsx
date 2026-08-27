@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
+import { formatAuthError } from "@/lib/auth-session";
 import { completePushSetup } from "@/lib/push-notifications";
 import { prepareNotificationsOnUserGesture } from "@/lib/notification-preferences";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,29 @@ function safeReturnPath(from: unknown): string {
 
 const selectClass =
   "h-12 w-full appearance-none rounded-xl border border-border bg-secondary/40 px-3.5 pr-10 text-base text-foreground outline-none transition-colors focus-visible:border-emerald/50 focus-visible:ring-2 focus-visible:ring-emerald/20";
+
+function authErrorMessage(
+  error: unknown,
+  t: (key: string) => string,
+  fallbackKey: "auth.signInFailed" | "auth.signUpFailed"
+) {
+  const raw = formatAuthError(error, "").toLowerCase();
+  if (!raw) return t(fallbackKey);
+  if (raw.includes("already") || raw.includes("registered") || raw.includes("exists")) {
+    return t("auth.emailAlreadyRegistered");
+  }
+  if (raw.includes("password") && (raw.includes("least") || raw.includes("short") || raw.includes("weak"))) {
+    return t("settings.passwordTooShort");
+  }
+  if (raw.includes("rate") || raw.includes("too many")) {
+    return t("auth.rateLimited");
+  }
+  if (raw.includes("invalid login") || raw.includes("invalid credentials")) {
+    return t("auth.signInFailed");
+  }
+  const text = formatAuthError(error, t(fallbackKey));
+  return text || t(fallbackKey);
+}
 
 export default function AuthPage() {
   const { t } = useTranslation();
@@ -93,7 +117,7 @@ export default function AuthPage() {
     const form = new FormData(e.currentTarget);
     const { error } = await signIn(form.get("email") as string, form.get("password") as string);
     if (error) {
-      setError(t("auth.signInFailed"));
+      setError(authErrorMessage(error, t, "auth.signInFailed"));
     } else {
       const {
         data: { user: signedIn },
@@ -140,7 +164,7 @@ export default function AuthPage() {
       }
     );
     if (error) {
-      setError(t("auth.signUpFailed"));
+      setError(authErrorMessage(error, t, "auth.signUpFailed"));
     } else if (!session) {
       setInfo(t("auth.checkEmail"));
       setCountryCode("");
