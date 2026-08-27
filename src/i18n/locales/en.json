@@ -2325,6 +2325,7 @@
     "tryAgain": "Try Again",
     "goHome": "Go to Homepage",
     "chunkLoad": "A new version of the site is available. Please reload the page.",
+    "chunkLoadDesc": "Clearing the old cached version and reloading usually fixes this.",
     "reload": "Reload Page"
   },
   "pwa": {
