@@ -87,7 +87,13 @@ type DeckoSidebarProps = {
   onClose?: () => void;
 };
 
-export function DeckoSidebar({ mobileOpen = false, onClose }: DeckoSidebarProps) {
+function SidebarChrome({
+  onClose,
+  showClose,
+}: {
+  onClose?: () => void;
+  showClose?: boolean;
+}) {
   const { pathname } = useLocation();
   const { t } = useTranslation();
   const { profile, signOut } = useAuth();
@@ -120,15 +126,8 @@ export function DeckoSidebar({ mobileOpen = false, onClose }: DeckoSidebarProps)
     [searchQuery, navigate, onClose]
   );
 
-  const aside = (
-    <aside
-      className={cn(
-        "decko-sidebar flex h-dvh w-[min(18rem,88vw)] shrink-0 flex-col overflow-hidden px-4 py-5 lg:w-[248px]",
-        "fixed inset-y-0 left-0 z-50 transition-transform duration-300 ease-out lg:relative lg:z-auto lg:translate-x-0",
-        mobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0"
-      )}
-      aria-label={t("dashboard.navLabel")}
-    >
+  return (
+    <>
       <div className="mb-4 flex items-start justify-between gap-2 px-2 pt-[max(0px,env(safe-area-inset-top))] lg:mb-6 lg:pt-0">
         <Link to="/dashboard" className="flex min-w-0 items-center gap-2.5" onClick={onClose}>
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--decko-accent)]">
@@ -136,14 +135,16 @@ export function DeckoSidebar({ mobileOpen = false, onClose }: DeckoSidebarProps)
           </span>
           <span className="truncate text-lg font-bold text-[var(--decko-sidebar-text)]">{BRAND.name}</span>
         </Link>
-        <button
-          type="button"
-          className="flex h-10 w-10 items-center justify-center rounded-full text-[var(--decko-sidebar-muted)] hover:bg-[var(--decko-sidebar-hover)] lg:hidden"
-          onClick={onClose}
-          aria-label={t("dashboard.closeSidebar")}
-        >
-          <X className="h-4 w-4" />
-        </button>
+        {showClose ? (
+          <button
+            type="button"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-[var(--decko-sidebar-muted)] hover:bg-[var(--decko-sidebar-hover)]"
+            onClick={onClose}
+            aria-label={t("dashboard.closeSidebar")}
+          >
+            <X className="h-4 w-4" />
+          </button>
+        ) : null}
       </div>
 
       <form onSubmit={handleSearch} className="relative mb-6">
@@ -258,10 +259,36 @@ export function DeckoSidebar({ mobileOpen = false, onClose }: DeckoSidebarProps)
           {t("common.signOut")}
         </Button>
       </div>
-    </aside>
+    </>
   );
+}
 
-  return aside;
+export function DeckoSidebar({ mobileOpen = false, onClose }: DeckoSidebarProps) {
+  const { t } = useTranslation();
+
+  return (
+    <>
+      {/* Desktop rail — always visible at lg+ */}
+      <aside
+        className="decko-sidebar decko-sidebar-desktop z-30 h-dvh w-[248px] shrink-0 flex-col overflow-hidden px-4 py-5"
+        aria-label={t("dashboard.navLabel")}
+      >
+        <SidebarChrome />
+      </aside>
+
+      {/* Mobile drawer */}
+      <aside
+        className={cn(
+          "decko-sidebar decko-sidebar-mobile fixed inset-y-0 left-0 z-50 h-dvh w-[min(18rem,88vw)] flex-col overflow-hidden px-4 py-5 shadow-2xl transition-transform duration-300 ease-out",
+          mobileOpen ? "translate-x-0" : "-translate-x-full pointer-events-none"
+        )}
+        aria-label={t("dashboard.navLabel")}
+        aria-hidden={!mobileOpen}
+      >
+        <SidebarChrome onClose={onClose} showClose />
+      </aside>
+    </>
+  );
 }
 
 export function DeckoMobileTopBar({
@@ -292,7 +319,7 @@ export function DeckoMobileTopBar({
   );
 
   return (
-    <div className="decko-mobile-bar flex items-center justify-between gap-2 border-b px-3 py-3 safe-area-top safe-area-x lg:hidden">
+    <div className="decko-mobile-bar decko-mobile-only flex items-center justify-between gap-2 border-b px-3 py-3 safe-area-top safe-area-x">
       <button
         type="button"
         onClick={onMenuOpen}

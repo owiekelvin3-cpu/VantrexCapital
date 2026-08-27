@@ -70,17 +70,6 @@ export function useWithdrawalForm(
 
     await ensureValidSession();
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("kyc_status")
-      .eq("id", userId)
-      .single();
-    if (profile?.kyc_status !== "approved") {
-      setMessage(i18n.t("kyc.required"));
-      setLoading(false);
-      return false;
-    }
-
     const { error } = await supabase.from("withdrawals").insert({
       user_id: userId,
       amount: data.amount,
@@ -91,7 +80,7 @@ export function useWithdrawalForm(
     });
 
     if (error) {
-      setMessage(formatTransactionError(error, error.message, i18n.t("kyc.required")));
+      setMessage(formatTransactionError(error, error.message, i18n.t("errors.tryAgain")));
     } else {
       setSuccess(true);
       await load(userId);

@@ -1113,6 +1113,27 @@ html.support-chat-open body {
   border-right: 1px solid var(--decko-sidebar-border);
 }
 
+/* Desktop sidebar must stay visible on PC (don't rely only on Tailwind lg:flex). */
+.decko-sidebar-desktop {
+  display: none;
+}
+
+.decko-sidebar-mobile {
+  display: flex;
+}
+
+@media (min-width: 1024px) {
+  .decko-sidebar-desktop {
+    display: flex;
+    position: sticky;
+    top: 0;
+  }
+
+  .decko-sidebar-mobile {
+    display: none !important;
+  }
+}
+
 .decko-main {
   background: var(--bg-primary);
   color: var(--text-primary);
@@ -1127,6 +1148,17 @@ html.support-chat-open body {
 
 .decko-mobile-bar {
   border-color: var(--border);
+}
+
+.decko-mobile-only {
+  display: flex;
+}
+
+@media (min-width: 1024px) {
+  .decko-mobile-only {
+    display: none !important;
+  }
+}
   background: color-mix(in srgb, var(--bg-secondary) 92%, transparent);
   backdrop-filter: blur(12px);
 }

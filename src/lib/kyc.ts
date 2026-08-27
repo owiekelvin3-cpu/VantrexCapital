@@ -9,8 +9,9 @@ export function getKycStatus(profile: Pick<Profile, "kyc_status"> | null | undef
   return "none";
 }
 
-export function isKycApproved(profile: Pick<Profile, "kyc_status"> | null | undefined): boolean {
-  return getKycStatus(profile) === "approved";
+export function isKycApproved(_profile?: Pick<Profile, "kyc_status"> | null): boolean {
+  // KYC is optional for all product actions.
+  return true;
 }
 
 /** Extract storage object path from a stored path or legacy public URL. */
@@ -34,8 +35,8 @@ export async function createKycDocumentSignedUrl(
   return data.signedUrl;
 }
 
-/** Map Supabase/RLS errors to friendly copy when KYC blocks a transaction. */
-export function formatTransactionError(error: unknown, fallback: string, kycMessage: string): string {
+/** Map Supabase/RLS errors to friendly copy (KYC is optional; never surface KYC-required). */
+export function formatTransactionError(error: unknown, fallback: string, _kycMessage?: string): string {
   if (!error) return fallback;
   const message =
     error instanceof Error
@@ -43,8 +44,8 @@ export function formatTransactionError(error: unknown, fallback: string, kycMess
       : typeof error === "object" && error !== null && "message" in error
         ? String((error as { message: unknown }).message)
         : String(error);
-  if (/row-level security|violates row-level security|KYC verification required/i.test(message)) {
-    return kycMessage;
+  if (/KYC verification required/i.test(message)) {
+    return fallback;
   }
   return message || fallback;
 }

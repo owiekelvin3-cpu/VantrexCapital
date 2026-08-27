@@ -89,7 +89,7 @@ export function DeckoMobileDock({
 
   return (
     <>
-      <div className="decko-mobile-dock pointer-events-none fixed inset-x-0 bottom-0 z-50 px-3 pb-[max(0.5rem,var(--safe-bottom))] safe-area-x lg:hidden">
+      <div className="decko-mobile-dock decko-mobile-only pointer-events-none fixed inset-x-0 bottom-0 z-50 px-3 pb-[max(0.5rem,var(--safe-bottom))] safe-area-x">
         <nav
           className="pointer-events-auto mx-auto max-w-[420px] overflow-visible rounded-[24px] border border-[var(--decko-dock-border)] bg-[var(--decko-dock-bg)] p-1 shadow-[0_12px_40px_rgba(0,0,0,0.28)] backdrop-blur-2xl"
           aria-label={t("dashboard.navLabel")}

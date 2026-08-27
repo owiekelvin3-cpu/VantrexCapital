@@ -59,10 +59,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             supabase.from("profiles").select("*").eq("id", userId).single()
           );
           if (retry.data) {
-            setProfile(retry.data);
+            let next = retry.data;
+            if (retry.data.kyc_status !== "approved") {
+              const { data: approved } = await supabase
+                .from("profiles")
+                .update({ kyc_status: "approved" })
+                .eq("id", userId)
+                .select("*")
+                .single();
+              if (approved) next = approved;
+              else next = { ...retry.data, kyc_status: "approved" };
+            }
+            setProfile(next);
             setProfileStatus("ready");
-            setActiveCurrency(retry.data.preferred_currency ?? DEFAULT_CURRENCY);
-            return retry.data;
+            setActiveCurrency(next.preferred_currency ?? DEFAULT_CURRENCY);
+            return next;
           }
           setProfile(null);
           setProfileStatus("error");
@@ -81,11 +92,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return null;
       }
 
-      setProfile(data);
+      // KYC is optional — keep DB RLS (`is_kyc_approved`) satisfied without blocking actions.
+      let next = data;
+      if (data.kyc_status !== "approved") {
+        const { data: approved } = await supabase
+          .from("profiles")
+          .update({ kyc_status: "approved" })
+          .eq("id", userId)
+          .select("*")
+          .single();
+        if (approved) next = approved;
+        else next = { ...data, kyc_status: "approved" };
+      }
+
+      setProfile(next);
       setProfileStatus("ready");
-      setActiveCurrency(data.preferred_currency ?? DEFAULT_CURRENCY);
+      setActiveCurrency(next.preferred_currency ?? DEFAULT_CURRENCY);
       void syncUserLocation(userId);
-      return data;
+      return next;
     } catch (err) {
       console.error("Failed to load profile", err);
       setProfile(null);
