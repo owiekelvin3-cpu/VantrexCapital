@@ -19,3 +19,8 @@ export function formatDate(date: string | Date) {
     day: "numeric",
   }).format(new Date(date));
 }
+
+export function formatPercent(value: number, digits = 1) {
+  const sign = value > 0 ? "+" : "";
+  return `${sign}${value.toFixed(digits)}%`;
+}

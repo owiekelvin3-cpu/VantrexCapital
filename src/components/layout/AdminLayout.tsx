@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import {
   Users, FileCheck, ArrowDownToLine, ArrowUpFromLine, TrendingUp,
   Settings, Bell, Mail, LogOut, Menu, LayoutDashboard, LayoutGrid, Coins, MessageCircle, X, Bot,
-  AlertTriangle,
+  AlertTriangle, Radio, Copy,
 } from "@/lib/icons";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -28,6 +28,8 @@ const adminLinks = [
   { href: "/dashboard/admin/fees", labelKey: "admin.withdrawalFees", icon: AlertTriangle },
   { href: "/dashboard/admin/trades", labelKey: "admin.trades", icon: TrendingUp },
   { href: "/dashboard/admin/ai-trading", labelKey: "admin.aiTrading", icon: Bot },
+  { href: "/dashboard/admin/signals", labelKey: "admin.signals", icon: Radio },
+  { href: "/dashboard/admin/copy-trading", labelKey: "admin.copyTradingNav", icon: Copy },
   { href: "/dashboard/admin/notifications", labelKey: "admin.notifications", icon: Bell },
   { href: "/dashboard/admin/support", labelKey: "admin.support", icon: MessageCircle },
   { href: "/dashboard/admin/email", labelKey: "admin.emailCenter", icon: Mail },

@@ -12,15 +12,16 @@ import { DashboardSheet } from "@/components/dashboard/DashboardSheet";
 import { KycRequiredGate } from "@/components/dashboard/KycRequiredGate";
 import { ProductNotice } from "@/components/dashboard/ProductNotice";
 import { isKycApproved, formatTransactionError } from "@/lib/kyc";
-import { SIGNAL_PACKAGES, type SignalPackage } from "@/constants/products";
+import { SIGNAL_PLANS } from "@/lib/signal-plans";
 import {
+  canViewSignal,
   computeSignalDeskStats,
   fetchSignalSubscriptions,
   fetchTradingSignals,
-  getActiveSignalTier,
+  getUserSignalTierRank,
   isSubscriptionActive,
+  purchaseSignalPackage,
   riskRewardRatio,
-  tierLabelKey,
   type SignalSubscription,
   type TradingSignal,
 } from "@/lib/signals";
@@ -51,9 +52,7 @@ function SignalRow({ signal }: { signal: TradingSignal }) {
       <td className="hidden px-3 py-3 font-mono text-xs text-muted sm:table-cell">{signal.entry_price}</td>
       <td className="hidden px-3 py-3 font-mono text-xs text-emerald md:table-cell">{signal.target_price}</td>
       <td className="hidden px-3 py-3 font-mono text-xs text-red-400 md:table-cell">{signal.stop_price}</td>
-      <td className="hidden px-3 py-3 text-xs lg:table-cell">
-        {rr != null ? `${rr.toFixed(1)}R` : "—"}
-      </td>
+      <td className="hidden px-3 py-3 text-xs lg:table-cell">{rr != null ? `${rr.toFixed(1)}R` : "—"}</td>
       <td className="px-3 py-3 text-xs text-muted">{signal.confidence}%</td>
       <td className="px-3 py-3">
         <Badge variant={signal.status === "active" ? "success" : "secondary"} className="capitalize">
@@ -70,7 +69,7 @@ export default function SignalsPage() {
   const [subs, setSubs] = useState<SignalSubscription[]>([]);
   const [signals, setSignals] = useState<TradingSignal[]>([]);
   const [balance, setBalance] = useState(0);
-  const [pending, setPending] = useState<SignalPackage | null>(null);
+  const [pending, setPending] = useState<(typeof SIGNAL_PLANS)[number] | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
   const [message, setMessage] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
@@ -86,11 +85,11 @@ export default function SignalsPage() {
     setSubs(subList);
     setBalance(Number(balRes.data?.amount ?? 0));
 
-    const tier = getActiveSignalTier(subList);
-    if (tier) {
+    const tierRank = getUserSignalTierRank(subList);
+    if (tierRank > 0) {
       try {
         const desk = await fetchTradingSignals();
-        setSignals(desk);
+        setSignals(desk.filter((s) => canViewSignal(s, tierRank)));
       } catch {
         setSignals([]);
       }
@@ -103,26 +102,30 @@ export default function SignalsPage() {
     void load();
   }, [load]);
 
-  const activeTier = useMemo(() => getActiveSignalTier(subs), [subs]);
+  const tierRank = useMemo(() => getUserSignalTierRank(subs), [subs]);
   const stats = useMemo(() => computeSignalDeskStats(signals), [signals]);
+  const currentPlanLabel = useMemo(() => {
+    const active = subs.find(isSubscriptionActive);
+    return active ? active.package_name : null;
+  }, [subs]);
 
   const filteredSignals = useMemo(() => {
     if (filter === "all") return signals;
     return signals.filter((s) => s.status === filter);
   }, [signals, filter]);
 
-  const requestSubscribe = (pkg: SignalPackage) => {
+  const requestSubscribe = (plan: (typeof SIGNAL_PLANS)[number]) => {
     setMessage("");
     setIsSuccess(false);
     if (!isKycApproved(profile)) {
       setMessage(t("kyc.required"));
       return;
     }
-    if (convertFromUsd(pkg.price) > balance) {
+    if (convertFromUsd(plan.price) > balance) {
       setMessage(t("signals.insufficientBalance"));
       return;
     }
-    setPending(pkg);
+    setPending(plan);
   };
 
   const confirmSubscribe = async () => {
@@ -130,32 +133,31 @@ export default function SignalsPage() {
     setLoading(pending.id);
     setMessage("");
     setIsSuccess(false);
-    const name = t(pending.nameKey);
-    const expires = new Date();
-    expires.setDate(expires.getDate() + pending.durationDays);
-    const price = convertFromUsd(pending.price);
-    const { error } = await supabase.from("signal_packages").insert({
-      user_id: user.id,
-      package_id: pending.id,
-      package_name: name,
-      price,
-      status: "active",
-      expires_at: expires.toISOString(),
-    });
-    if (error) {
+    try {
+      await purchaseSignalPackage({
+        userId: user.id,
+        planId: pending.id,
+        planName: pending.name,
+        price: convertFromUsd(pending.price),
+        days: pending.days,
+      });
+      setIsSuccess(true);
+      setMessage(t("signals.subscribed", { name: pending.name }));
+      setPending(null);
+      await load();
+    } catch (error) {
       setMessage(
         formatTransactionError(
           error,
-          error.message.includes("Insufficient") ? t("signals.insufficientBalance") : error.message,
+          error instanceof Error && error.message.includes("Insufficient")
+            ? t("signals.insufficientBalance")
+            : error instanceof Error
+              ? error.message
+              : t("signals.subscribeFailed"),
           t("kyc.required")
         )
       );
       setIsSuccess(false);
-    } else {
-      setIsSuccess(true);
-      setMessage(t("signals.subscribed", { name }));
-      setPending(null);
-      await load();
     }
     setLoading(null);
   };
@@ -174,13 +176,13 @@ export default function SignalsPage() {
         }
       />
 
-      {activeTier ? (
+      {tierRank > 0 ? (
         <>
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             <div className="rounded-xl border border-emerald/30 bg-emerald/10 px-4 py-3">
               <p className="text-[11px] font-medium uppercase tracking-wider text-muted">{t("signals.currentPlan")}</p>
-              <p className="mt-1 font-display text-lg font-semibold capitalize text-emerald">
-                {t(tierLabelKey(activeTier))}
+              <p className="mt-1 font-display text-lg font-semibold text-emerald">
+                {currentPlanLabel || "—"}
               </p>
             </div>
             <div className="rounded-xl border border-border bg-card px-4 py-3">
@@ -284,35 +286,35 @@ export default function SignalsPage() {
       <KycRequiredGate>
         <div>
           <h2 className="mb-3 font-display text-base font-semibold">{t("signals.plansTitle")}</h2>
-          <div className="grid gap-3 md:grid-cols-3">
-            {SIGNAL_PACKAGES.map((pkg) => {
-              const name = t(pkg.nameKey);
-              const isCurrent = activeTier === pkg.id;
-              const price = convertFromUsd(pkg.price);
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+            {SIGNAL_PLANS.map((plan) => {
+              const isCurrent = subs.some((s) => isSubscriptionActive(s) && s.package_id === plan.id);
+              const price = convertFromUsd(plan.price);
               return (
                 <div
-                  key={pkg.id}
+                  key={plan.id}
                   className={cn(
                     "flex flex-col rounded-2xl border bg-card p-4",
-                    isCurrent ? "border-emerald/40 ring-1 ring-emerald/20" : "border-border/70"
+                    plan.highlighted ? "border-emerald/40 ring-1 ring-emerald/20" : "border-border/70",
+                    isCurrent && "border-emerald/40"
                   )}
                 >
                   <div className="flex items-center justify-between gap-2">
-                    <p className="font-display text-lg font-semibold text-foreground">{name}</p>
+                    <p className="font-display text-lg font-semibold text-foreground">{plan.name}</p>
                     {isCurrent && <Badge variant="success">{t("signals.currentPlan")}</Badge>}
                   </div>
                   <p className="mt-3 font-display text-2xl font-semibold tracking-tight">
                     {formatCurrency(price)}
                     <span className="ml-1 text-sm font-normal text-muted">
-                      {t("signals.perPeriod", { days: pkg.durationDays })}
+                      {t("signals.perPeriod", { days: plan.days })}
                     </span>
                   </p>
-                  <p className="mt-2 text-sm text-muted">{t(pkg.volumeKey)}</p>
+                  <p className="mt-2 text-sm text-muted">{plan.description}</p>
                   <ul className="mt-4 flex-1 space-y-1.5">
-                    {pkg.includes.map((key) => (
-                      <li key={key} className="flex items-start gap-2 text-xs text-muted">
+                    {plan.features.map((feature) => (
+                      <li key={feature} className="flex items-start gap-2 text-xs text-muted">
                         <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald" />
-                        <span>{t(key)}</span>
+                        <span>{feature}</span>
                       </li>
                     ))}
                   </ul>
@@ -320,10 +322,10 @@ export default function SignalsPage() {
                     size="sm"
                     className="mt-4 w-full rounded-full"
                     variant={isCurrent ? "outline" : "default"}
-                    disabled={loading === pkg.id || isCurrent}
-                    onClick={() => requestSubscribe(pkg)}
+                    disabled={loading === plan.id || isCurrent}
+                    onClick={() => requestSubscribe(plan)}
                   >
-                    {isCurrent ? t("signals.planActive") : loading === pkg.id ? t("common.saving") : t("signals.subscribe")}
+                    {isCurrent ? t("signals.planActive") : loading === plan.id ? t("common.saving") : t("signals.subscribe")}
                   </Button>
                   {balance < price && !isCurrent && (
                     <Button variant="ghost" size="sm" className="mt-1 w-full text-xs" asChild>
@@ -346,8 +348,8 @@ export default function SignalsPage() {
               title={t("signals.confirmTitle")}
               body={t("signals.confirmBody", {
                 amount: formatCurrency(convertFromUsd(pending.price)),
-                name: t(pending.nameKey),
-                days: pending.durationDays,
+                name: pending.name,
+                days: pending.days,
               })}
             />
             <div className="mt-4 flex flex-wrap gap-2">

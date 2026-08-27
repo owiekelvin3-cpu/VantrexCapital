@@ -80,52 +80,16 @@ export interface AdminUserDetails {
   moderation_actions: AdminModerationAction[];
 }
 
-function asArray<T>(value: unknown): T[] {
-  return Array.isArray(value) ? (value as T[]) : [];
-}
-
 export async function fetchAdminUserDetails(userId: string): Promise<AdminUserDetails> {
   const { data, error } = await supabase.rpc("admin_get_user_details", { p_user_id: userId });
   if (error) throw error;
-  if (!data || typeof data !== "object") {
-    throw new Error("Failed to load user details.");
-  }
   const details = data as AdminUserDetails;
-  if (!details.profile || typeof details.profile !== "object") {
-    throw new Error("User profile was not found.");
-  }
   return {
     ...details,
-    balance: Number(details.balance ?? 0),
     outstanding_fees_total: Number(details.outstanding_fees_total ?? 0),
-    fees: asArray(details.fees),
-    balance_adjustments: asArray(details.balance_adjustments),
-    recent_deposits: asArray(details.recent_deposits),
-    recent_withdrawals: asArray(details.recent_withdrawals),
-    kyc_submissions: asArray(details.kyc_submissions),
-    moderation_actions: asArray(details.moderation_actions),
-    auth: details.auth
-      ? {
-          ...details.auth,
-          providers: asArray<string>(details.auth.providers),
-        }
-      : {
-          created_at: null,
-          last_sign_in_at: null,
-          email_confirmed_at: null,
-          phone: null,
-          has_password: false,
-          providers: [],
-        },
-    stats: details.stats ?? {
-      deposits_count: 0,
-      deposits_total: 0,
-      withdrawals_count: 0,
-      withdrawals_total: 0,
-      trades_count: 0,
-      active_trades: 0,
-      ai_bots_active: 0,
-    },
+    fees: details.fees ?? [],
+    balance_adjustments: details.balance_adjustments ?? [],
+    moderation_actions: details.moderation_actions ?? [],
   };
 }
 
@@ -286,4 +250,49 @@ export async function fetchAdminProfile(userId: string) {
   const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).single();
   if (error) throw error;
   return data;
+}
+
+export async function setAdminUserSignalPct(params: { userId: string; pct: number; note?: string }) {
+  const { data, error } = await supabase.rpc("admin_set_user_signal_pct", {
+    p_user_id: params.userId,
+    p_pct: params.pct,
+    p_note: params.note ?? null,
+  });
+  if (error) throw error;
+  return data as { ok: boolean; signal_pct: number; previous_pct: number };
+}
+
+export async function bulkAdjustAdminSignalPct(params: { delta: number; note?: string }) {
+  const { data, error } = await supabase.rpc("admin_bulk_adjust_signal_pct", {
+    p_delta: params.delta,
+    p_note: params.note ?? null,
+  });
+  if (error) throw error;
+  return data as { ok: boolean; users_updated: number; delta: number };
+}
+
+export async function grantAdminUserSignal(params: {
+  userId: string;
+  packageId: string;
+  packageName: string;
+  durationDays?: number;
+}) {
+  const { data, error } = await supabase.rpc("admin_grant_user_signal", {
+    p_user_id: params.userId,
+    p_package_id: params.packageId,
+    p_package_name: params.packageName,
+    p_duration_days: params.durationDays ?? 30,
+  });
+  if (error) throw error;
+  return data;
+}
+
+export async function adminAdjustCopyTradingProfit(subscriptionId: string, amount: number, note?: string) {
+  const { data, error } = await supabase.rpc("admin_adjust_copy_trading_profit", {
+    p_subscription_id: subscriptionId,
+    p_amount: amount,
+    p_note: note?.trim() || null,
+  });
+  if (error) throw error;
+  return data as { profit_after?: number; balance_after?: number; amount?: number; trader_name?: string };
 }

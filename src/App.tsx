@@ -63,6 +63,8 @@ const AdminWithdrawalsPage = lazy(() => import("@/pages/admin/AdminWithdrawalsPa
 const AdminFeesPage = lazy(() => import("@/pages/admin/AdminFeesPage"));
 const AdminTradesPage = lazy(() => import("@/pages/admin/AdminTradesPage"));
 const AdminAITradingPage = lazy(() => import("@/pages/admin/AdminAITradingPage"));
+const AdminSignalsPage = lazy(() => import("@/pages/admin/AdminSignalsPage"));
+const AdminCopyTradingPage = lazy(() => import("@/pages/admin/AdminCopyTradingPage"));
 const AdminDepositConfigPage = lazy(() => import("@/pages/admin/AdminDepositConfigPage"));
 const AdminSettingsPage = lazy(() => import("@/pages/admin/AdminSettingsPage"));
 const AdminNotificationsPage = lazy(() => import("@/pages/admin/AdminNotificationsPage"));
@@ -155,6 +157,8 @@ function App() {
                 <Route path="dashboard/admin/fees" element={<AdminFeesPage />} />
                 <Route path="dashboard/admin/trades" element={<AdminTradesPage />} />
                 <Route path="dashboard/admin/ai-trading" element={<AdminAITradingPage />} />
+                <Route path="dashboard/admin/signals" element={<AdminSignalsPage />} />
+                <Route path="dashboard/admin/copy-trading" element={<AdminCopyTradingPage />} />
                 <Route path="dashboard/admin/settings" element={<AdminSettingsPage />} />
                 <Route path="dashboard/admin/notifications" element={<AdminNotificationsPage />} />
                 <Route path="dashboard/admin/support" element={<AdminSupportPage />} />

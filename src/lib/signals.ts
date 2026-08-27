@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabase";
+import { signalTierRank, userTierRankFromPackages } from "@/lib/signal-plans";
 
-export type SignalTier = "basic" | "pro" | "vip";
 export type SignalDirection = "buy" | "sell";
 export type SignalStatus = "active" | "closed" | "cancelled";
 
@@ -12,7 +12,7 @@ export interface TradingSignal {
   target_price: string;
   stop_price: string;
   status: SignalStatus;
-  min_tier: SignalTier;
+  min_tier: string;
   confidence: number;
   outcome: string | null;
   notes: string | null;
@@ -30,30 +30,14 @@ export interface SignalSubscription {
   created_at: string;
 }
 
-export function tierRank(tier: SignalTier | string | null | undefined): number {
-  if (tier === "vip") return 3;
-  if (tier === "pro") return 2;
-  return 1;
-}
-
 export function isSubscriptionActive(sub: SignalSubscription): boolean {
   if (sub.status !== "active") return false;
   if (!sub.expires_at) return true;
   return new Date(sub.expires_at).getTime() > Date.now();
 }
 
-export function getActiveSignalTier(subs: SignalSubscription[]): SignalTier | null {
-  let best = 0;
-  let tier: SignalTier | null = null;
-  for (const sub of subs) {
-    if (!isSubscriptionActive(sub)) continue;
-    const rank = tierRank(sub.package_id);
-    if (rank > best) {
-      best = rank;
-      tier = (sub.package_id as SignalTier) || "basic";
-    }
-  }
-  return tier;
+export function getUserSignalTierRank(subs: SignalSubscription[]): number {
+  return userTierRankFromPackages(subs);
 }
 
 export async function fetchSignalSubscriptions(userId: string): Promise<SignalSubscription[]> {
@@ -77,7 +61,7 @@ export async function fetchTradingSignals(): Promise<TradingSignal[]> {
 
 export function computeSignalDeskStats(signals: TradingSignal[]) {
   const closed = signals.filter((s) => s.status === "closed");
-  const wins = closed.filter((s) => s.outcome === "win" || (!s.outcome && s.direction === "buy")).length;
+  const wins = closed.filter((s) => s.outcome === "win").length;
   const winRate = closed.length > 0 ? Math.round((wins / closed.length) * 100) : null;
   const active = signals.filter((s) => s.status === "active").length;
   return { active, closed: closed.length, winRate };
@@ -94,6 +78,32 @@ export function riskRewardRatio(signal: TradingSignal): number | null {
   return Math.round((reward / risk) * 100) / 100;
 }
 
-export function tierLabelKey(tier: SignalTier): string {
-  return `signals.packages.${tier}`;
+export function canViewSignal(signal: TradingSignal, userTierRank: number): boolean {
+  if (userTierRank <= 0) return false;
+  return signalTierRank(signal.min_tier) <= userTierRank;
+}
+
+export async function purchaseSignalPackage(params: {
+  userId: string;
+  planId: string;
+  planName: string;
+  price: number;
+  days: number;
+}): Promise<SignalSubscription> {
+  const expires = new Date();
+  expires.setDate(expires.getDate() + params.days);
+  const { data, error } = await supabase
+    .from("signal_packages")
+    .insert({
+      user_id: params.userId,
+      package_id: params.planId,
+      package_name: params.planName,
+      price: params.price,
+      status: "active",
+      expires_at: expires.toISOString(),
+    })
+    .select("id, package_id, package_name, price, status, expires_at, created_at")
+    .single();
+  if (error) throw error;
+  return { ...data, price: Number(data.price) };
 }
